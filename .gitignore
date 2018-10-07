@@ -1,0 +1,4 @@
+*.o
+avrprog.eep
+avrprog.elf
+avrprog.hex
