@@ -5,16 +5,19 @@ This project must run within the memory constraints of the ATmega328P (32 KB for
 NOTE: The build as it is configured assumes a 16 MHz core clock, as it is configured on the Arduino boards. If running with a different clock, the F_CPU value should be modified accordingly. Other things may also misbehave at different clocks (such as the ADC, where the prescale factor used may need to be changed, and possibly the serial communication if the timings don't quite match up), but it should be possible to resolve with some minor code changes.
 
 
-ATmega328P functionality used:
+Some ATmega328P functionality used:
 	- Timer
-	- Serial communication using the UART
+	- Serial communication using the USART
 	- ADC to estimate chip's internal temperature
 
 Features of "avrprog" include:
 	- A lightweight "shell" in which to launch built-in commands
 		- with limited use of VT100 codes to support "backspace", "up" for previous command, and for clearing the screen
 	- Some system utilities, including a stack pointer monitor which samples stack memory usage over time
+	- Random number generator
+		- LCG algorithm with some added entropy based on USART RX timings
 	- Pong!
+		- 'w'/'s' (player 1); up/down (player 2); space to resume; 'Q' to quit
 
 
 ====================
