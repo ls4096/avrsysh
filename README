@@ -9,6 +9,7 @@ Some ATmega328P functionality used:
 	- Timer
 	- Serial communication using the USART
 	- ADC to estimate chip's internal temperature
+	- Some very basic power management using the "sleep" instruction
 
 Features of "avrprog" include:
 	- A lightweight "shell" in which to launch built-in commands
