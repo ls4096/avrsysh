@@ -3,6 +3,7 @@
 #include "pong.h"
 
 #include "pm.h"
+#include "rng.h"
 #include "serial.h"
 #include "timer.h"
 
@@ -113,7 +114,21 @@ void pong_start()
 {
 	paddle_t p0 = { PADDLE_Y_INIT, PADDLE_Y_INIT };
 	paddle_t p1 = { PADDLE_Y_INIT, PADDLE_Y_INIT };
-	ball_t ball = { ball_c2v(BALL_X_INIT_C), ball_c2v(BALL_Y_INIT_C), 1 << 8, 1 << 7 }; // TODO: Ball speed should be as constant as possible (i.e. dx^2 + dy^2 ~= k^2)
+
+	// Randomize ball starting direction.
+	short ball_vx = 1 << 8;
+	short ball_vy = 1 << 7;
+	short r = rng_rand();
+	if (r & 0x0001)
+	{
+		ball_vx = -ball_vx;
+	}
+	if (r & 0x0002)
+	{
+		ball_vy = -ball_vy;
+	}
+
+	ball_t ball = { ball_c2v(BALL_X_INIT_C), ball_c2v(BALL_Y_INIT_C), ball_vx, ball_vy };
 
 	unsigned short scores[2] = { 0, 0 };
 
