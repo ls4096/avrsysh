@@ -1,4 +1,4 @@
-The "avrprog" project explores some of the capabilities of the ATmega328P MCU (used on boards such as the Arduino Duemilanove and Arduino Uno).
+The "avrsysh" project explores some of the capabilities of the ATmega328P MCU (used on boards such as the Arduino Duemilanove and Arduino Uno).
 
 This project must run within the memory constraints of the ATmega328P (32 KB for instructions, and 2 KB SRAM for data), so it is an interesting challenge to see how much can be accomplished within these constraints. At the moment, the project seems to be well within these limits, and there is much room for additional features.
 
@@ -11,7 +11,7 @@ Some ATmega328P functionality used:
 	- ADC to estimate chip's internal temperature
 	- Some very basic power management using the "sleep" instruction
 
-Features of "avrprog" include:
+Features of "avrsysh" include:
 	- A lightweight "shell" in which to launch built-in commands
 		- with limited use of VT100 codes to support "backspace", "up" for previous command, and for clearing the screen
 	- Some system utilities, including a "CPU usage" counter and a stack pointer monitor which samples stack memory usage over time

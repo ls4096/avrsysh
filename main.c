@@ -7,7 +7,7 @@
 
 #define CMD_BUF_SIZE 32
 
-static const unsigned char* GREETING = "Enter command:\r\n";
+static const unsigned char* GREETING = "\r\nWelcome to avrsysh!\r\nEnter command:\r\n";
 static const unsigned char* PROMPT = "> ";
 static const unsigned char NEWLINE[2] = { 0x0d, 0x0a };
 static const unsigned char BACKSPACE[6] = { 0x1b, '[', 'D', 0x1b, '[', 'K' };
