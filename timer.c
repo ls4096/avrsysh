@@ -2,9 +2,10 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 
-#include "sp_mon.h"
 #include "timer.h"
+
 #include "pm.h"
+#include "sp_mon.h"
 
 
 static volatile unsigned short _t[2] = { 0, 0 };
@@ -53,7 +54,7 @@ ISR(TIMER1_OVF_vect)
 
 void timer_init()
 {
-	// TODO: Change to 128 ticks per second. Instead of overflow, we should use a compare to a specific value.
+	// TODO: Change to use 128 ticks per second? Instead of interrupt on overflow, we should use a compare to a specific value.
 	PRR &= ~(1 << PRTIM1);
 	TCCR1B |= (1 << CS10);
 	TIFR1 |= (1 << TOV1);
@@ -77,6 +78,11 @@ void timer_get_tick_count(unsigned short* t)
 		t[0] = _t[0];
 		t[1] = _t[1];
 	}
+}
+
+unsigned char timer_get_tick_count_lsbyte()
+{
+	return (unsigned char)(_t[1] & 0x00ff);
 }
 
 short timer_compare(unsigned short* t0, unsigned short* t1)

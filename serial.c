@@ -2,7 +2,10 @@
 #include <avr/interrupt.h>
 
 #include "serial.h"
+
 #include "pm.h"
+#include "rng.h"
+#include "timer.h"
 
 #ifndef F_CPU
 	#error F_CPU not defined
@@ -31,6 +34,8 @@ ISR(USART_RX_vect)
 
 	_rx_buf[_rx_buf_next_write] = c;
 	_rx_buf_next_write = ((_rx_buf_next_write + 1) % RX_BUF_SIZE);
+
+	rng_add_entropy(timer_get_tick_count_lsbyte());
 }
 
 

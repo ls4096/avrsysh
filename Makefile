@@ -6,6 +6,7 @@ OBJS = \
 	main.o \
 	pm.o \
 	pong.o \
+	rng.o \
 	serial.o \
 	sp_mon.o \
 	thermal.o \

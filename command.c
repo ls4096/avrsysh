@@ -5,6 +5,7 @@
 #include "led.h"
 #include "pm.h"
 #include "pong.h"
+#include "rng.h"
 #include "serial.h"
 #include "sp_mon.h"
 #include "thermal.h"
@@ -20,6 +21,7 @@
 #define CMD_SET_TIME "settime"
 #define CMD_CLEAR "clear"
 #define CMD_SLEEP "sleep"
+#define CMD_RAND "rand"
 #define CMD_SP_MON_ON "spm_on"
 #define CMD_SP_MON_OFF "spm_off"
 #define CMD_SP_MON_INFO "spm_info"
@@ -32,6 +34,7 @@ static void pc_time();
 static void pc_settime(const char* cmd_str);
 static void pc_clear();
 static void pc_sleep(const char* cmd_str);
+static void pc_rand();
 static void pc_sp_mon_enable(bool enable);
 static void pc_sp_mon_info();
 static void pc_pong();
@@ -75,6 +78,10 @@ void process_command(unsigned char* cmd_str)
 	{
 		pc_sleep(cmd_str);
 	}
+	else if (strcmp(cmd_str, CMD_RAND) == 0)
+	{
+		pc_rand();
+	}
 	else if (strcmp(cmd_str, CMD_SP_MON_ON) == 0)
 	{
 		pc_sp_mon_enable(true);
@@ -106,6 +113,7 @@ static void pc_help()
 		" " CMD_SYS_INFO	": show system info\r\n" \
 		" " CMD_CLEAR		": clear screen\r\n" \
 		" " CMD_SLEEP		" N: sleep N seconds\r\n" \
+		" " CMD_RAND		": show random number\r\n" \
 		" " CMD_LED_ON		"\r\n" \
 		" " CMD_LED_OFF		"\r\n" \
 		"Time:\r\n" \
@@ -248,6 +256,14 @@ static void pc_sleep(const char* cmd_str)
 	{
 		pm_yield();
 	}
+}
+
+static void pc_rand()
+{
+	char buf[10];
+	short r = rng_rand();
+	sprintf(buf, "%d\r\n", r);
+	serial_write(buf, strlen(buf));
 }
 
 static void pc_sp_mon_enable(bool enable)

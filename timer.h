@@ -12,6 +12,7 @@
 
 void timer_init();
 void timer_get_tick_count(unsigned short* t);
+unsigned char timer_get_tick_count_lsbyte();
 short timer_compare(unsigned short* t0, unsigned short* t1);
 void timer_add_seconds(unsigned short* t0, unsigned short seconds);
 unsigned short timer_get_diff_seconds(unsigned short* t0, unsigned short* t1);
