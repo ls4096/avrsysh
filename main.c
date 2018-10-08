@@ -39,7 +39,6 @@ static int loop(void)
 
 	while (1)
 	{
-		// TODO: Ignore new incoming chars if we're at buf limit.
 		unsigned char c = serial_read_next_byte();
 
 		if (esc)
@@ -77,6 +76,11 @@ static int loop(void)
 		}
 		else if (c >= 0x20 && c <= 0x7e)
 		{
+			if (i == CMD_BUF_SIZE - 1)
+			{
+				continue;
+			}
+
 			serial_write(&c, 1);
 			buf[i++] = c;
 		}
