@@ -14,7 +14,7 @@ Some ATmega328P functionality used:
 Features of "avrprog" include:
 	- A lightweight "shell" in which to launch built-in commands
 		- with limited use of VT100 codes to support "backspace", "up" for previous command, and for clearing the screen
-	- Some system utilities, including a stack pointer monitor which samples stack memory usage over time
+	- Some system utilities, including a "CPU usage" counter and a stack pointer monitor which samples stack memory usage over time
 	- Random number generator
 		- LCG algorithm with some added entropy based on USART RX timings
 	- Pong!
