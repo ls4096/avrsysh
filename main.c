@@ -1,6 +1,7 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 
+#include "command.h"
 #include "led.h"
 #include "serial.h"
 #include "thermal.h"
@@ -12,9 +13,10 @@ static const unsigned char* PROMPT = "> ";
 static const unsigned char NEWLINE[2] = { 0x0d, 0x0a };
 static const unsigned char BACKSPACE[6] = { 0x1b, '[', 'D', 0x1b, '[', 'K' };
 
-static int loop(void);
+static void reset(void);
+static short loop(void);
  
-int main(void)
+void main(void)
 {
 	serial_init();
 	timer_init();
@@ -25,10 +27,21 @@ int main(void)
 
 	serial_write(GREETING, strlen(GREETING));
 
-	return loop();
+	if (loop() == PC_RC_RESET)
+	{
+		reset();
+	}
 }
 
-static int loop(void)
+static void reset(void)
+{
+	asm volatile (
+		"cli\r\n" \
+		"jmp 0\r\n"
+	);
+}
+
+static short loop(void)
 {
 	unsigned char buf[CMD_BUF_SIZE];
 	unsigned char last_cmd[CMD_BUF_SIZE];
@@ -71,7 +84,12 @@ static int loop(void)
 			{
 				strcpy(last_cmd, buf);
 			}
-			process_command(buf);
+
+			char rc = process_command(buf);
+			if (rc < 0)
+			{
+				return rc;
+			}
 
 			i = 0;
 

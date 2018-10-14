@@ -14,6 +14,8 @@
 #include "util.h"
 
 #define CMD_HELP "help"
+#define CMD_RESET "reset"
+#define CMD_STOP "stop"
 #define CMD_LED_ON "led_on"
 #define CMD_LED_OFF "led_off"
 #define CMD_SYS_INFO "sysinfo"
@@ -39,14 +41,22 @@ static void pc_sp_mon_enable(bool enable);
 static void pc_sp_mon_info();
 static void pc_pong();
 
-void process_command(unsigned char* cmd_str)
+char process_command(unsigned char* cmd_str)
 {
 	if (strlen(cmd_str) == 0)
 	{
-		return;
+		return 0;
 	}
 
-	if (strcmp(cmd_str, CMD_HELP) == 0)
+	if (strcmp(cmd_str, CMD_RESET) == 0)
+	{
+		return PC_RC_RESET;
+	}
+	else if (strcmp(cmd_str, CMD_STOP) == 0)
+	{
+		return PC_RC_STOP;
+	}
+	else if (strcmp(cmd_str, CMD_HELP) == 0)
 	{
 		pc_help();
 	}
@@ -103,6 +113,8 @@ void process_command(unsigned char* cmd_str)
 		static const char* UNKNOWN_COMMAND_RESPONSE = "???: Try \'" CMD_HELP "\'.\r\n";
 		serial_write(UNKNOWN_COMMAND_RESPONSE, strlen(UNKNOWN_COMMAND_RESPONSE));
 	}
+
+	return 0;
 }
 
 static void pc_help()
@@ -116,6 +128,8 @@ static void pc_help()
 		" " CMD_RAND		": show random number\r\n" \
 		" " CMD_LED_ON		"\r\n" \
 		" " CMD_LED_OFF		"\r\n" \
+		" " CMD_RESET		"\r\n" \
+		" " CMD_STOP		"\r\n" \
 		"Time:\r\n" \
 		" " CMD_TIME		"\r\n" \
 		" " CMD_SET_TIME	" HH:MM:SS\r\n" \
