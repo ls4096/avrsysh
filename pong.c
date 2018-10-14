@@ -77,7 +77,7 @@ void pong_init()
 	serial_write("\e[2J\e[H", 7);
 
 	// Draw walls.
-	int i, j;
+	short i, j;
 	char buf[16];
 	char wall_c = WALL_C;
 	for (i = 1; i <= PONG_HEIGHT; i++)
@@ -96,7 +96,8 @@ void pong_init()
 			serial_write(buf, strlen(buf));
 			serial_write(&wall_c, 1);
 		}
-		sprintf("\r\n", 2);
+		sprintf(buf, "\r\n", 2);
+		serial_write(buf, strlen(buf));
 	}
 
 	// Draw paddles.
@@ -219,7 +220,7 @@ static void draw_vertical(short x, short y, short h, char c)
 {
 	move_cursor(x, y);
 
-	for (int i = 0; i < h; i++)
+	for (short i = 0; i < h; i++)
 	{
 		if (i != 0)
 		{
