@@ -67,7 +67,10 @@ static int loop(void)
 			serial_write(NEWLINE, sizeof(NEWLINE));
 			buf[i++] = 0;
 
-			strcpy(last_cmd, buf);
+			if (i > 1)
+			{
+				strcpy(last_cmd, buf);
+			}
 			process_command(buf);
 
 			i = 0;
