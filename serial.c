@@ -21,8 +21,6 @@ static volatile unsigned char _rx_buf[RX_BUF_SIZE];
 static volatile unsigned char _rx_buf_next_read = 0;
 static volatile unsigned char _rx_buf_next_write = 0;
 
-static void USART_Tx(unsigned char data);
-
 
 ISR(USART_RX_vect)
 {
@@ -70,11 +68,11 @@ void serial_write(unsigned char* data, short len)
 	short i;
 	for (i = 0; i < len; i++)
 	{
-		USART_Tx(data[i]);
+		serial_tx_byte(data[i]);
 	}
 }
 
-static void USART_Tx(unsigned char data)
+void serial_tx_byte(unsigned char data)
 {
 	while (!(UCSR0A & (1 << UDRE0))) { }
 	UDR0 = data;

@@ -102,7 +102,7 @@ static short loop(void)
 				continue;
 			}
 
-			serial_write(&c, 1);
+			serial_tx_byte(c);
 			buf[i++] = c;
 		}
 		else if (c == 0x1b)

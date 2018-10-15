@@ -79,22 +79,21 @@ void pong_init()
 	// Draw walls.
 	short i, j;
 	char buf[16];
-	char wall_c = WALL_C;
 	for (i = 1; i <= PONG_HEIGHT; i++)
 	{
 		if (i == 1 || i == PONG_HEIGHT)
 		{
 			for (j = 1; j <= PONG_WIDTH; j++)
 			{
-				serial_write(&wall_c, 1);
+				serial_tx_byte(WALL_C);
 			}
 		}
 		else
 		{
-			serial_write(&wall_c, 1);
+			serial_tx_byte(WALL_C);
 			sprintf(buf, "\e[%uC", PONG_WIDTH - 2);
 			serial_write(buf, strlen(buf));
-			serial_write(&wall_c, 1);
+			serial_tx_byte(WALL_C);
 		}
 		sprintf(buf, "\r\n", 2);
 		serial_write(buf, strlen(buf));
@@ -226,7 +225,7 @@ static void draw_vertical(short x, short y, short h, char c)
 		{
 			serial_write("\e[B\e[D", 6);
 		}
-		serial_write(&c, 1);
+		serial_tx_byte(c);
 	}
 }
 
