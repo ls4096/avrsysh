@@ -2,6 +2,7 @@
 
 #include "command.h"
 
+#include "dump.h"
 #include "led.h"
 #include "pm.h"
 #include "pong.h"
@@ -16,6 +17,7 @@
 #define CMD_HELP "help"
 #define CMD_RESET "reset"
 #define CMD_STOP "stop"
+#define CMD_DUMP "dump"
 #define CMD_LED_ON "led_on"
 #define CMD_LED_OFF "led_off"
 #define CMD_SYS_INFO "sysinfo"
@@ -55,6 +57,10 @@ char process_command(unsigned char* cmd_str)
 	else if (strcmp(cmd_str, CMD_STOP) == 0)
 	{
 		return PC_RC_STOP;
+	}
+	else if (strcmp(cmd_str, CMD_DUMP) == 0)
+	{
+		dump_state();
 	}
 	else if (strcmp(cmd_str, CMD_HELP) == 0)
 	{
