@@ -35,3 +35,6 @@ clean:
 
 flash: avrsysh.hex
 	$(AVR_TOOLS_DIR)/bin/avrdude -C $(AVR_TOOLS_DIR)/etc/avrdude.conf -p atmega328p -c stk500v1 -P $(AVR_FLASH_PORT) -b57600 -D -Uflash:w:avrsysh.hex:i
+
+flash_uno: avrsysh.hex
+	$(AVR_TOOLS_DIR)/bin/avrdude -C $(AVR_TOOLS_DIR)/etc/avrdude.conf -p atmega328p -c arduino -P $(AVR_FLASH_PORT) -b115200 -D -Uflash:w:avrsysh.hex:i

@@ -13,7 +13,7 @@
 
 #define RX_BUF_SIZE 32
 
-#define BAUDRATE 57600
+#define BAUDRATE 38400
 #define UBRR (F_CPU / 16 / BAUDRATE)
 
 
