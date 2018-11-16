@@ -19,6 +19,11 @@
 #define RESUME_C SPACE_C
 #define QUIT_C 'Q'
 
+#define P0_UP_C 'w'
+#define P0_DOWN_C 's'
+#define P1_UP_C 'o'
+#define P1_DOWN_C 'l'
+
 #define PADDLE_H (3)
 #define PADDLE_Y_INIT (PONG_HEIGHT / 2 - 1)
 
@@ -132,57 +137,29 @@ void pong_start()
 
 	unsigned short scores[2] = { 0, 0 };
 
-	enum { NORMAL, ESC, MOVE_P1 } s = NORMAL;
-
 	unsigned char c = get_char(true);
 	short check = 0;
 	while (1)
 	{
-		if (s == NORMAL && c == QUIT_C)
+		if (c == QUIT_C)
 		{
 			break;
 		}
-
-		switch (s)
+		else if (c == P0_UP_C)
 		{
-		case NORMAL:
-			if (c == 0x1b)
-			{
-				s = ESC;
-			}
-			else if (c == 'w')
-			{
-				paddle_up(&p0);
-			}
-			else if (c == 's')
-			{
-				paddle_down(&p0);
-			}
-			break;
-
-		case ESC:
-			if (c == '[')
-			{
-				s = MOVE_P1;
-			}
-			else
-			{
-				s = NORMAL;
-			}
-			break;
-
-		case MOVE_P1:
-			if (c == 'A')
-			{
-				paddle_up(&p1);
-			}
-			else if (c == 'B')
-			{
-				paddle_down(&p1);
-			}
-
-			s = NORMAL;
-			break;
+			paddle_up(&p0);
+		}
+		else if (c == P0_DOWN_C)
+		{
+			paddle_down(&p0);
+		}
+		else if (c == P1_UP_C)
+		{
+			paddle_up(&p1);
+		}
+		else if (c == P1_DOWN_C)
+		{
+			paddle_down(&p1);
 		}
 
 		if (should_draw_frame())

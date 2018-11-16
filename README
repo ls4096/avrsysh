@@ -18,7 +18,7 @@ Features of "avrsysh" include:
 	- Random number generator
 		- LCG algorithm with some added entropy based on USART RX timings
 	- Pong!
-		- 'w'/'s' (player 1); up/down (player 2); space to resume; 'Q' to quit
+		- 'w'/'s' for player 1 controls; 'o'/'l' for player 2 controls; space to resume; 'Q' to quit
 
 
 ====================
