@@ -268,22 +268,48 @@ static short check_ball_position(ball_t* b, paddle_t* p0, paddle_t* p1)
 
 static void draw_frame(paddle_t* p0, paddle_t* p1, ball_t* ball, unsigned short* scores)
 {
-	// Erase old paddles.
-	draw_vertical(PADDLE0_X, p0->y_prev, PADDLE_H, CLEAR_C);
-	draw_vertical(PADDLE1_X, p1->y_prev, PADDLE_H, CLEAR_C);
+	// Redraw paddle 0, if necessary.
+	if (p0->y_prev != p0->y)
+	{
+		draw_vertical(PADDLE0_X, p0->y_prev, PADDLE_H, CLEAR_C);
+		draw_vertical(PADDLE0_X, p0->y, PADDLE_H, PADDLE_C);
+		p0->y_prev = p0->y;
+	}
 
-	// Draw new paddles.
-	draw_vertical(PADDLE0_X, p0->y, PADDLE_H, PADDLE_C);
-	draw_vertical(PADDLE1_X, p1->y, PADDLE_H, PADDLE_C);
+	// Redraw paddle 1, if necessary.
+	if (p1->y_prev != p1->y)
+	{
+		draw_vertical(PADDLE1_X, p1->y_prev, PADDLE_H, CLEAR_C);
+		draw_vertical(PADDLE1_X, p1->y, PADDLE_H, PADDLE_C);
+		p1->y_prev = p1->y;
+	}
 
-	// Erase and draw new ball position.
-	draw_vertical(ball_v2c(ball->x - ball->vx), ball_v2c(ball->y - ball->vy), 1, CLEAR_C);
+	short ball_prev_x = ball_v2c(ball->x - ball->vx);
+	short ball_prev_y = ball_v2c(ball->y - ball->vy);
+
+	// Determine what is at the ball's previous position.
+	char ball_prev_c;
+	if (((ball_prev_x == PADDLE0_X) && \
+		(ball_prev_y >= p0->y) && \
+		(ball_prev_y < p0->y + PADDLE_H)) || \
+		((ball_prev_x == PADDLE1_X) && \
+		(ball_prev_y >= p1->y) && \
+		(ball_prev_y < p1->y + PADDLE_H)))
+	{
+		// Previous ball position is on paddle.
+		ball_prev_c = PADDLE_C;
+	}
+	else
+	{
+		// Previous ball position is empty space.
+		ball_prev_c = CLEAR_C;
+	}
+
+	// Draw new ball position.
+	draw_vertical(ball_prev_x, ball_prev_y, 1, ball_prev_c);
 	draw_vertical(ball_v2c(ball->x), ball_v2c(ball->y), 1, BALL_C);
 
-	// Update "previous" paddle y values.
-	p0->y_prev = p0->y;
-	p1->y_prev = p1->y;
-
+	// Print scores, if necessary.
 	if (scores)
 	{
 		char buf[16];
