@@ -8,6 +8,7 @@
 #include "pong.h"
 #include "rng.h"
 #include "serial.h"
+#include "snake.h"
 #include "sp_mon.h"
 #include "thermal.h"
 #include "time.h"
@@ -30,6 +31,7 @@
 #define CMD_SP_MON_OFF "spm_off"
 #define CMD_SP_MON_INFO "spm_info"
 #define CMD_PONG "pong"
+#define CMD_SNAKE "snake"
 
 static void pc_help();
 static void pc_led(bool set);
@@ -42,6 +44,7 @@ static void pc_rand();
 static void pc_sp_mon_enable(bool enable);
 static void pc_sp_mon_info();
 static void pc_pong();
+static void pc_snake();
 
 char process_command(unsigned char* cmd_str)
 {
@@ -114,6 +117,10 @@ char process_command(unsigned char* cmd_str)
 	{
 		pc_pong();
 	}
+	else if (strcmp(cmd_str, CMD_SNAKE) == 0)
+	{
+		pc_snake();
+	}
 	else
 	{
 		static const char* UNKNOWN_COMMAND_RESPONSE = "???: Try \'" CMD_HELP "\'.\r\n";
@@ -144,7 +151,8 @@ static void pc_help()
 		" " CMD_SP_MON_OFF	": stop\r\n" \
 		" " CMD_SP_MON_INFO	": show results\r\n" \
 		"Games:\r\n" \
-		" " CMD_PONG		"\r\n";
+		" " CMD_PONG		"\r\n" \
+		" " CMD_SNAKE		"\r\n";
 	serial_write(HELP_RESPONSE, strlen(HELP_RESPONSE));
 }
 
@@ -342,4 +350,9 @@ static void pc_pong()
 {
 	pong_init();
 	pong_start();
+}
+
+static void pc_snake()
+{
+	snake_main();
 }

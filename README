@@ -17,8 +17,10 @@ Features of "avrsysh" include:
 	- Some system utilities, including a "CPU usage" counter and a stack pointer monitor which samples stack memory usage over time
 	- Random number generator
 		- LCG algorithm with some added entropy based on USART RX timings
-	- Pong!
+	- Pong
 		- 'w'/'s' for player 1 controls; 'o'/'l' for player 2 controls; space to resume; 'Q' to quit
+	- Snake
+		- "wasd" to control; space to resume; 'Q' to quit
 
 
 ====================

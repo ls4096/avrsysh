@@ -9,6 +9,7 @@ OBJS = \
 	pong.o \
 	rng.o \
 	serial.o \
+	snake.o \
 	sp_mon.o \
 	thermal.o \
 	time.o \
