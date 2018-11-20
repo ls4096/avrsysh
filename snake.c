@@ -72,8 +72,6 @@ typedef struct
 } food_t;
 
 
-static void draw_vertical(short x, short y, short h, char c);
-static void draw_horizontal(short x, short y, short l, char c);
 static void snake_dir_change(snake_t* snake, unsigned char dir);
 static bool update_snake(snake_t* snake, food_t* food, unsigned char* map);
 static void update_food(food_t* food, unsigned char* map);
@@ -161,7 +159,7 @@ void snake_main()
 	}
 
 	// Draw snake.
-	draw_horizontal(snake.tail_x + 1, snake.tail_y + 1, SNAKE_START_LEN, SNAKE_C);
+	game_draw_horizontal(snake.tail_x + 1, snake.tail_y + 1, SNAKE_START_LEN, SNAKE_C);
 
 	term_cursor_home();
 
@@ -207,30 +205,6 @@ void snake_main()
 	term_set_cursor(true);
 }
 
-
-static void draw_vertical(short x, short y, short h, char c)
-{
-	term_move_cursor(x, y);
-
-	for (short i = 0; i < h; i++)
-	{
-		if (i != 0)
-		{
-			serial_write("\e[B\e[D", 6);
-		}
-		serial_tx_byte(c);
-	}
-}
-
-static void draw_horizontal(short x, short y, short l, char c)
-{
-	term_move_cursor(x, y);
-
-	for (short i = 0; i < l; i++)
-	{
-		serial_tx_byte(c);
-	}
-}
 
 static void snake_dir_change(snake_t* snake, unsigned char dir)
 {
@@ -392,15 +366,15 @@ static void update_food(food_t* food, unsigned char* map)
 static void draw_frame(snake_t* snake, food_t* food)
 {
 	// Draw snake head.
-	draw_horizontal(snake->head_x + 1, snake->head_y + 1, 1, SNAKE_C);
+	game_draw_horizontal(snake->head_x + 1, snake->head_y + 1, 1, SNAKE_C);
 
 	// Clear snake tail.
-	draw_horizontal(snake->tail_prev_x + 1, snake->tail_prev_y + 1, 1, CLEAR_C);
+	game_draw_horizontal(snake->tail_prev_x + 1, snake->tail_prev_y + 1, 1, CLEAR_C);
 
 	// Draw food, if needed.
 	if (food->need_draw && food->active)
 	{
-		draw_horizontal(food->x + 1, food->y + 1, 1, FOOD_C);
+		game_draw_horizontal(food->x + 1, food->y + 1, 1, FOOD_C);
 		food->need_draw = false;
 	}
 }

@@ -57,7 +57,6 @@ typedef struct
 } ball_t;
 
 
-static void draw_vertical(short x, short y, short h, char c);
 static void paddle_up(paddle_t* p);
 static void paddle_down(paddle_t* p);
 static void update_ball(ball_t* b);
@@ -102,11 +101,11 @@ void pong_init()
 	}
 
 	// Draw paddles.
-	draw_vertical(PADDLE0_X, PADDLE_Y_INIT, PADDLE_H, PADDLE_C);
-	draw_vertical(PADDLE1_X, PADDLE_Y_INIT, PADDLE_H, PADDLE_C);
+	game_draw_vertical(PADDLE0_X, PADDLE_Y_INIT, PADDLE_H, PADDLE_C);
+	game_draw_vertical(PADDLE1_X, PADDLE_Y_INIT, PADDLE_H, PADDLE_C);
 
 	// Draw ball.
-	draw_vertical(BALL_X_INIT_C, BALL_Y_INIT_C, 1, BALL_C);
+	game_draw_vertical(BALL_X_INIT_C, BALL_Y_INIT_C, 1, BALL_C);
 
 	term_cursor_home();
 }
@@ -185,20 +184,6 @@ void pong_start()
 }
 
 
-static void draw_vertical(short x, short y, short h, char c)
-{
-	term_move_cursor(x, y);
-
-	for (short i = 0; i < h; i++)
-	{
-		if (i != 0)
-		{
-			serial_write("\e[B\e[D", 6);
-		}
-		serial_tx_byte(c);
-	}
-}
-
 static void paddle_up(paddle_t* p)
 {
 	if (p->y <= 2)
@@ -264,16 +249,16 @@ static void draw_frame(paddle_t* p0, paddle_t* p1, ball_t* ball, unsigned short*
 	// Redraw paddle 0, if necessary.
 	if (p0->y_prev != p0->y)
 	{
-		draw_vertical(PADDLE0_X, p0->y_prev, PADDLE_H, CLEAR_C);
-		draw_vertical(PADDLE0_X, p0->y, PADDLE_H, PADDLE_C);
+		game_draw_vertical(PADDLE0_X, p0->y_prev, PADDLE_H, CLEAR_C);
+		game_draw_vertical(PADDLE0_X, p0->y, PADDLE_H, PADDLE_C);
 		p0->y_prev = p0->y;
 	}
 
 	// Redraw paddle 1, if necessary.
 	if (p1->y_prev != p1->y)
 	{
-		draw_vertical(PADDLE1_X, p1->y_prev, PADDLE_H, CLEAR_C);
-		draw_vertical(PADDLE1_X, p1->y, PADDLE_H, PADDLE_C);
+		game_draw_vertical(PADDLE1_X, p1->y_prev, PADDLE_H, CLEAR_C);
+		game_draw_vertical(PADDLE1_X, p1->y, PADDLE_H, PADDLE_C);
 		p1->y_prev = p1->y;
 	}
 
@@ -299,8 +284,8 @@ static void draw_frame(paddle_t* p0, paddle_t* p1, ball_t* ball, unsigned short*
 	}
 
 	// Draw new ball position.
-	draw_vertical(ball_prev_x, ball_prev_y, 1, ball_prev_c);
-	draw_vertical(ball_v2c(ball->x), ball_v2c(ball->y), 1, BALL_C);
+	game_draw_vertical(ball_prev_x, ball_prev_y, 1, ball_prev_c);
+	game_draw_vertical(ball_v2c(ball->x), ball_v2c(ball->y), 1, BALL_C);
 
 	// Print scores, if necessary.
 	if (scores)
