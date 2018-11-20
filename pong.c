@@ -5,6 +5,7 @@
 #include "pm.h"
 #include "rng.h"
 #include "serial.h"
+#include "term.h"
 #include "timer.h"
 
 
@@ -56,7 +57,6 @@ typedef struct
 } ball_t;
 
 
-static void move_cursor(short x, short y);
 static void draw_vertical(short x, short y, short h, char c);
 static void paddle_up(paddle_t* p);
 static void paddle_down(paddle_t* p);
@@ -75,11 +75,8 @@ static unsigned short _next_frame_time[2] = { 0, 0 };
 
 void pong_init()
 {
-	// Disable cursor.
-	serial_write("\e[?25l", 6);
-
-	// Clear screen.
-	serial_write("\e[2J\e[H", 7);
+	term_set_cursor(false);
+	term_clear_screen();
 
 	// Draw walls.
 	short i, j;
@@ -111,8 +108,7 @@ void pong_init()
 	// Draw ball.
 	draw_vertical(BALL_X_INIT_C, BALL_Y_INIT_C, 1, BALL_C);
 
-	// Return cursor to home.
-	serial_write("\e[H", 3);
+	term_cursor_home();
 }
 
 void pong_start()
@@ -184,17 +180,14 @@ void pong_start()
 		} while (check != 0 && c != RESUME_C && c != QUIT_C);
 	}
 
-	// Clear screen.
-	serial_write("\e[2J\e[H", 7);
-
-	// Re-enable cursor.
-	serial_write("\e[?25h", 6);
+	term_clear_screen();
+	term_set_cursor(true);
 }
 
 
 static void draw_vertical(short x, short y, short h, char c)
 {
-	move_cursor(x, y);
+	term_move_cursor(x, y);
 
 	for (short i = 0; i < h; i++)
 	{
@@ -313,7 +306,7 @@ static void draw_frame(paddle_t* p0, paddle_t* p1, ball_t* ball, unsigned short*
 	if (scores)
 	{
 		char buf[16];
-		move_cursor(SCORE_POS_X, SCORE_POS_Y);
+		term_move_cursor(SCORE_POS_X, SCORE_POS_Y);
 		sprintf(buf, "%u  -  %u", scores[0], scores[1]);
 		serial_write(buf, strlen(buf));
 	}
@@ -349,13 +342,6 @@ static void add_frame_time(unsigned short* t)
 	{
 		t[0]++;
 	}
-}
-
-static void move_cursor(short x, short y)
-{
-	char buf[16];
-	sprintf(buf, "\e[%u;%uH", y, x);
-	serial_write(buf, strlen(buf));
 }
 
 static unsigned char get_char(bool block)

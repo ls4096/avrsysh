@@ -10,6 +10,7 @@
 #include "serial.h"
 #include "snake.h"
 #include "sp_mon.h"
+#include "term.h"
 #include "thermal.h"
 #include "time.h"
 #include "timer.h"
@@ -242,8 +243,7 @@ static void pc_settime(const char* cmd_str)
 
 static void pc_clear()
 {
-	static const unsigned char CLEAR[7] = { 0x1b, '[', '2', 'J', 0x1b, '[', 'H' };
-	serial_write(CLEAR, sizeof(CLEAR));
+	term_clear_screen();
 }
 
 static void pc_sleep(const char* cmd_str)

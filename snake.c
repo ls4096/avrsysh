@@ -5,6 +5,7 @@
 #include "pm.h"
 #include "rng.h"
 #include "serial.h"
+#include "term.h"
 #include "timer.h"
 
 
@@ -71,7 +72,6 @@ typedef struct
 } food_t;
 
 
-static void move_cursor(short x, short y);
 static void draw_vertical(short x, short y, short h, char c);
 static void draw_horizontal(short x, short y, short l, char c);
 static void snake_dir_change(snake_t* snake, unsigned char dir);
@@ -135,11 +135,8 @@ void snake_main()
 	}
 
 
-	// Disable cursor.
-	serial_write("\e[?25l", 6);
-
-	// Clear screen.
-	serial_write("\e[2J\e[H", 7);
+	term_set_cursor(false);
+	term_clear_screen();
 
 	// Draw walls.
 	char buf[16];
@@ -166,8 +163,7 @@ void snake_main()
 	// Draw snake.
 	draw_horizontal(snake.tail_x + 1, snake.tail_y + 1, SNAKE_START_LEN, SNAKE_C);
 
-	// Return cursor to home.
-	serial_write("\e[H", 3);
+	term_cursor_home();
 
 	char c = get_char(true);
 	bool check = false;
@@ -207,17 +203,14 @@ void snake_main()
 		} while (check && c != RESUME_C && c != QUIT_C);
 	}
 
-	// Clear screen.
-	serial_write("\e[2J\e[H", 7);
-
-	// Re-enable cursor.
-	serial_write("\e[?25h", 6);
+	term_clear_screen();
+	term_set_cursor(true);
 }
 
 
 static void draw_vertical(short x, short y, short h, char c)
 {
-	move_cursor(x, y);
+	term_move_cursor(x, y);
 
 	for (short i = 0; i < h; i++)
 	{
@@ -231,7 +224,7 @@ static void draw_vertical(short x, short y, short h, char c)
 
 static void draw_horizontal(short x, short y, short l, char c)
 {
-	move_cursor(x, y);
+	term_move_cursor(x, y);
 
 	for (short i = 0; i < l; i++)
 	{
@@ -442,13 +435,6 @@ static void add_frame_time(unsigned short* t)
 	{
 		t[0]++;
 	}
-}
-
-static void move_cursor(short x, short y)
-{
-	char buf[16];
-	sprintf(buf, "\e[%u;%uH", y, x);
-	serial_write(buf, strlen(buf));
 }
 
 static char get_char(bool block)

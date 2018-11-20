@@ -11,6 +11,7 @@ OBJS = \
 	serial.o \
 	snake.o \
 	sp_mon.o \
+	term.o \
 	thermal.o \
 	time.o \
 	timer.o \
