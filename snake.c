@@ -137,26 +137,7 @@ void snake_main()
 	term_clear_screen();
 
 	// Draw walls.
-	char buf[16];
-	for (short i = 0; i < SNAKE_HEIGHT; i++)
-	{
-		if (i == 0 || i == SNAKE_HEIGHT - 1)
-		{
-			for (short j = 0; j < SNAKE_WIDTH; j++)
-			{
-				serial_tx_byte(WALL_C);
-			}
-		}
-		else
-		{
-			serial_tx_byte(WALL_C);
-			sprintf(buf, "\e[%uC", SNAKE_WIDTH - 2);
-			serial_write(buf, strlen(buf));
-			serial_tx_byte(WALL_C);
-		}
-		sprintf(buf, "\r\n", 2);
-		serial_write(buf, strlen(buf));
-	}
+	game_draw_border(SNAKE_WIDTH, SNAKE_HEIGHT, WALL_C);
 
 	// Draw snake.
 	game_draw_horizontal(snake.tail_x + 1, snake.tail_y + 1, SNAKE_START_LEN, SNAKE_C);

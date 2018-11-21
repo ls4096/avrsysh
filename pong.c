@@ -78,27 +78,7 @@ void pong_init()
 	term_clear_screen();
 
 	// Draw walls.
-	short i, j;
-	char buf[16];
-	for (i = 1; i <= PONG_HEIGHT; i++)
-	{
-		if (i == 1 || i == PONG_HEIGHT)
-		{
-			for (j = 1; j <= PONG_WIDTH; j++)
-			{
-				serial_tx_byte(WALL_C);
-			}
-		}
-		else
-		{
-			serial_tx_byte(WALL_C);
-			sprintf(buf, "\e[%uC", PONG_WIDTH - 2);
-			serial_write(buf, strlen(buf));
-			serial_tx_byte(WALL_C);
-		}
-		sprintf(buf, "\r\n", 2);
-		serial_write(buf, strlen(buf));
-	}
+	game_draw_border(PONG_WIDTH, PONG_HEIGHT, WALL_C);
 
 	// Draw paddles.
 	game_draw_vertical(PADDLE0_X, PADDLE_Y_INIT, PADDLE_H, PADDLE_C);
