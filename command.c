@@ -16,25 +16,31 @@
 #include "timer.h"
 #include "util.h"
 
-#define CMD_HELP "help"
-#define CMD_RESET "reset"
-#define CMD_STOP "stop"
-#define CMD_DUMP "dump"
-#define CMD_LED_ON "led_on"
-#define CMD_LED_OFF "led_off"
-#define CMD_SYS_INFO "sysinfo"
-#define CMD_TIME "time"
-#define CMD_SET_TIME "settime"
-#define CMD_CLEAR "clear"
-#define CMD_SLEEP "sleep"
-#define CMD_RAND "rand"
-#define CMD_SP_MON_ON "spm_on"
-#define CMD_SP_MON_OFF "spm_off"
-#define CMD_SP_MON_INFO "spm_info"
-#define CMD_PONG "pong"
-#define CMD_SNAKE "snake"
+#define HELP_LINE_MAX_LENGTH 48
+
+static const char* CMD_HELP = "help";
+static const char* CMD_RESET = "reset";
+static const char* CMD_STOP = "stop";
+static const char* CMD_DUMP = "dump";
+static const char* CMD_LED_ON = "led_on";
+static const char* CMD_LED_OFF = "led_off";
+static const char* CMD_SYS_INFO = "sysinfo";
+static const char* CMD_TIME = "time";
+static const char* CMD_SET_TIME = "settime";
+static const char* CMD_CLEAR = "clear";
+static const char* CMD_SLEEP = "sleep";
+static const char* CMD_RAND = "rand";
+static const char* CMD_SP_MON_ON = "spm_on";
+static const char* CMD_SP_MON_OFF = "spm_off";
+static const char* CMD_SP_MON_INFO = "spm_info";
+static const char* CMD_PONG = "pong";
+static const char* CMD_SNAKE = "snake";
 
 static void pc_help();
+static void help_print_f0(const char* s);
+static void help_print_f1(const char* cmd);
+static void help_print_f2(const char* cmd, const char* cmd_help);
+static void help_print_f2a(const char* cmd, const char* cmd_help);
 static void pc_led(bool set);
 static void pc_sys_info();
 static void pc_time();
@@ -124,8 +130,10 @@ char process_command(unsigned char* cmd_str)
 	}
 	else
 	{
-		static const char* UNKNOWN_COMMAND_RESPONSE = "???: Try \'" CMD_HELP "\'.\r\n";
-		serial_write(UNKNOWN_COMMAND_RESPONSE, strlen(UNKNOWN_COMMAND_RESPONSE));
+		char buf[20];
+		sprintf(buf, "?: Try \'%s\'.", CMD_HELP);
+		serial_write(buf, strlen(buf));
+		serial_write_newline();
 	}
 
 	return 0;
@@ -133,28 +141,66 @@ char process_command(unsigned char* cmd_str)
 
 static void pc_help()
 {
-	static const char* HELP_RESPONSE = \
-		"General:\r\n" \
-		" " CMD_HELP		": show help\r\n" \
-		" " CMD_SYS_INFO	": show system info\r\n" \
-		" " CMD_CLEAR		": clear screen\r\n" \
-		" " CMD_SLEEP		" N: sleep N seconds\r\n" \
-		" " CMD_RAND		": show random number\r\n" \
-		" " CMD_LED_ON		"\r\n" \
-		" " CMD_LED_OFF		"\r\n" \
-		" " CMD_RESET		"\r\n" \
-		" " CMD_STOP		"\r\n" \
-		"Time:\r\n" \
-		" " CMD_TIME		"\r\n" \
-		" " CMD_SET_TIME	" HH:MM:SS\r\n" \
-		"Stack Pointer Monitor:\r\n" \
-		" " CMD_SP_MON_ON	": start\r\n" \
-		" " CMD_SP_MON_OFF	": stop\r\n" \
-		" " CMD_SP_MON_INFO	": show results\r\n" \
-		"Games:\r\n" \
-		" " CMD_PONG		"\r\n" \
-		" " CMD_SNAKE		"\r\n";
-	serial_write(HELP_RESPONSE, strlen(HELP_RESPONSE));
+	// General
+	help_print_f0("General:");
+	help_print_f2(CMD_HELP, "show help");
+	help_print_f2(CMD_SYS_INFO, "show system info");
+	help_print_f2(CMD_CLEAR, "clear screen");
+	help_print_f2a(CMD_SLEEP, "N: sleep N seconds");
+	help_print_f2(CMD_RAND, "show random number");
+	help_print_f1(CMD_LED_ON);
+	help_print_f1(CMD_LED_OFF);
+	help_print_f1(CMD_RESET);
+	help_print_f1(CMD_STOP);
+
+	// Time
+	help_print_f0("Time:");
+	help_print_f1(CMD_TIME);
+	help_print_f2a(CMD_SET_TIME, "HH:MM:SS");
+
+	// Stack Pointer Monitor
+	help_print_f0("Stack Pointer Monitor:");
+	help_print_f2(CMD_SP_MON_ON, "start");
+	help_print_f2(CMD_SP_MON_OFF, "stop");
+	help_print_f2(CMD_SP_MON_INFO, "show results");
+
+	// Games
+	help_print_f0("Games:");
+	help_print_f1(CMD_PONG);
+	help_print_f1(CMD_SNAKE);
+}
+
+static void help_print_f0(const char* s)
+{
+	serial_write(s, strlen(s));
+	serial_write_newline();
+}
+
+static void help_print_f1(const char* cmd)
+{
+	char buf[HELP_LINE_MAX_LENGTH];
+
+	sprintf(buf, " %s", cmd);
+	serial_write(buf, strlen(buf));
+	serial_write_newline();
+}
+
+static void help_print_f2(const char* cmd, const char* cmd_help)
+{
+	char buf[HELP_LINE_MAX_LENGTH];
+
+	sprintf(buf, " %s: %s", cmd, cmd_help);
+	serial_write(buf, strlen(buf));
+	serial_write_newline();
+}
+
+static void help_print_f2a(const char* cmd, const char* cmd_help)
+{
+	char buf[HELP_LINE_MAX_LENGTH];
+
+	sprintf(buf, " %s %s", cmd, cmd_help);
+	serial_write(buf, strlen(buf));
+	serial_write_newline();
 }
 
 static void pc_led(bool set)

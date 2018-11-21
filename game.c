@@ -46,7 +46,6 @@ void game_draw_border(short w, short h, short c)
 			serial_write(buf, strlen(buf));
 			serial_tx_byte(c);
 		}
-		sprintf(buf, "\r\n", 2);
-		serial_write(buf, strlen(buf));
+		serial_write_newline();
 	}
 }

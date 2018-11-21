@@ -16,6 +16,8 @@
 #define BAUDRATE 38400
 #define UBRR (F_CPU / 16 / BAUDRATE)
 
+static const unsigned char NEWLINE[2] = { 0x0d, 0x0a };
+
 
 static volatile unsigned char _rx_buf[RX_BUF_SIZE];
 static volatile unsigned char _rx_buf_next_read = 0;
@@ -70,6 +72,11 @@ void serial_write(unsigned char* data, short len)
 	{
 		serial_tx_byte(data[i]);
 	}
+}
+
+void serial_write_newline()
+{
+	serial_write(NEWLINE, sizeof(NEWLINE));
 }
 
 void serial_tx_byte(unsigned char data)

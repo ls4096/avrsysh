@@ -8,9 +8,9 @@
 
 #define CMD_BUF_SIZE 32
 
-static const unsigned char* GREETING = "\r\nWelcome to avrsysh!\r\nEnter command:\r\n";
+static const unsigned char* GREETING_1 = "Welcome to avrsysh!";
+static const unsigned char* GREETING_2 = "Enter command:";
 static const unsigned char* PROMPT = "> ";
-static const unsigned char NEWLINE[2] = { 0x0d, 0x0a };
 static const unsigned char BACKSPACE[6] = { 0x1b, '[', 'D', 0x1b, '[', 'K' };
 
 static void reset(void);
@@ -25,7 +25,11 @@ void main(void)
 
 	sei();
 
-	serial_write(GREETING, strlen(GREETING));
+	serial_write_newline();
+	serial_write(GREETING_1, strlen(GREETING_1));
+	serial_write_newline();
+	serial_write(GREETING_2, strlen(GREETING_2));
+	serial_write_newline();
 
 	if (loop() == PC_RC_RESET)
 	{
@@ -77,7 +81,7 @@ static short loop(void)
 		}
 		else if (c == 0x0d)
 		{
-			serial_write(NEWLINE, sizeof(NEWLINE));
+			serial_write_newline();
 			buf[i++] = 0;
 
 			if (i > 1)
