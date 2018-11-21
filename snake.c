@@ -12,7 +12,7 @@
 // WARNING: Odd values for width/height not tested and not likely to work as is!
 //          Additionally, these values must be chosen carefully to not run out of memory,
 //          as the map requires (SNAKE_WIDTH * SNAKE_HEIGHT / 2) bytes of memory
-#define SNAKE_WIDTH 60
+#define SNAKE_WIDTH 80
 #define SNAKE_HEIGHT 20
 
 #define SNAKE_START_TAIL_X (SNAKE_WIDTH / 2 - 2)
