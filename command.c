@@ -1,4 +1,6 @@
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "command.h"
 
@@ -220,7 +222,7 @@ static void pc_sys_info()
 	char buf[40];
 
 	unsigned short ticks[2];
-	timer_get_tick_count(&ticks);
+	timer_get_tick_count(ticks);
 
 	// TODO: Fix? This will overflow after 65535 seconds.
 	short s = ticks[0] * TIMER_SECONDS_PER_UPPER_TICK + (ticks[1] / TIMER_TICKS_PER_SECOND);
@@ -229,7 +231,7 @@ static void pc_sys_info()
 	serial_write(buf, strlen(buf));
 
 	unsigned short w[2];
-	pm_get_wake_count(&w);
+	pm_get_wake_count(w);
 
 	sprintf(buf, "recent CPU usage: %u/%u\r\n", w[0], w[1]);
 	serial_write(buf, strlen(buf));
@@ -347,7 +349,7 @@ static void pc_sp_mon_enable(bool enable)
 
 static void pc_sp_mon_info()
 {
-	unsigned short* buckets = sp_mon_get_buckets();
+	volatile unsigned short* buckets = sp_mon_get_buckets();
 
 	char buf[64];
 	char bar[34];

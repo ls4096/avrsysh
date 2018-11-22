@@ -26,7 +26,7 @@ void pm_update_wake_counter(unsigned char c)
 	_wake_pos &= 0x0f;
 }
 
-void pm_get_wake_count(unsigned short* w)
+void pm_get_wake_count(unsigned short w[2])
 {
 	unsigned short s = 0;
 

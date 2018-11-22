@@ -65,7 +65,7 @@ unsigned char serial_read_next_byte()
 	return c;
 }
 
-void serial_write(unsigned char* data, short len)
+void serial_write(const unsigned char* data, short len)
 {
 	short i;
 	for (i = 0; i < len; i++)

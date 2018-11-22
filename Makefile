@@ -19,13 +19,13 @@ OBJS = \
 	util.o
 
 %.o: %.c
-	$(AVR_TOOLS_DIR)/bin/avr-gcc -c -g -Os -w -ffunction-sections -fdata-sections -mmcu=atmega328p -DF_CPU=16000000L -o $@ $<
+	$(AVR_TOOLS_DIR)/bin/avr-gcc -c -Os -mmcu=atmega328p -DF_CPU=16000000L -o $@ $<
 
 %.o: %.S
-	$(AVR_TOOLS_DIR)/bin/avr-as -c -g -w -mmcu=atmega328p -o $@ $<
+	$(AVR_TOOLS_DIR)/bin/avr-as -c -mmcu=atmega328p -o $@ $<
 
 avrsysh.elf: $(OBJS)
-	$(AVR_TOOLS_DIR)/bin/avr-gcc -Os -Wl,--gc-sections -mmcu=atmega328p -o avrsysh.elf *.o -lm
+	$(AVR_TOOLS_DIR)/bin/avr-gcc -Os -mmcu=atmega328p -o avrsysh.elf *.o -lm
 	$(AVR_TOOLS_DIR)/bin/avr-size avrsysh.elf
 
 avrsysh.hex: avrsysh.elf

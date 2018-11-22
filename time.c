@@ -1,20 +1,22 @@
+#include <stdio.h>
+
 #include "time.h"
 #include "timer.h"
 #include "util.h"
 
 #define SECONDS_IN_HALF_DAY 43200
 
-static volatile bool _set = false;
-static volatile bool _pm;
+static bool _set = false;
+static bool _pm;
 
-static volatile short _timer_nextmid[2];
+static short _timer_nextmid[2];
 
 bool time_is_set()
 {
 	return _set;
 }
 
-bool time_set_time(char* str)
+bool time_set_time(const char* str)
 {
 	if (!util_is_numeric(str[0]) ||
 		!util_is_numeric(str[1]) ||
@@ -55,10 +57,10 @@ bool time_set_time(char* str)
 	unsigned short ttm = SECONDS_IN_HALF_DAY - sec;
 
 	unsigned short t[2];
-	timer_get_tick_count(&t);
+	timer_get_tick_count(t);
 	_timer_nextmid[0] = t[0];
 	_timer_nextmid[1] = t[1];
-	timer_add_seconds(&_timer_nextmid, ttm);
+	timer_add_seconds(_timer_nextmid, ttm);
 
 	_set = true;
 	return true;
@@ -72,15 +74,15 @@ void time_get_time(char* str)
 	}
 
 	unsigned short t[2];
-	timer_get_tick_count(&t);
+	timer_get_tick_count(t);
 
-	while (timer_compare(&_timer_nextmid, &t) <= 0)
+	while (timer_compare(_timer_nextmid, t) <= 0)
 	{
-		timer_add_seconds(&_timer_nextmid, SECONDS_IN_HALF_DAY);
+		timer_add_seconds(_timer_nextmid, SECONDS_IN_HALF_DAY);
 		_pm = !_pm;
 	}
 
-	unsigned short ttm = timer_get_diff_seconds(&_timer_nextmid, &t);
+	unsigned short ttm = timer_get_diff_seconds(_timer_nextmid, t);
 	unsigned short sec = SECONDS_IN_HALF_DAY - ttm;
 
 	unsigned char h = (sec / 3600);

@@ -54,7 +54,6 @@ ISR(TIMER1_OVF_vect)
 
 void timer_init()
 {
-	// TODO: Change to use 128 ticks per second? Instead of interrupt on overflow, we should use a compare to a specific value.
 	PRR &= ~(1 << PRTIM1);
 	TCCR1B |= (1 << CS10);
 	TIFR1 |= (1 << TOV1);
@@ -69,7 +68,7 @@ void timer_init()
 	pm_reset();
 }
 
-void timer_get_tick_count(unsigned short* t)
+void timer_get_tick_count(unsigned short t[2])
 {
 	while (_t_updated)
 	{
@@ -85,7 +84,7 @@ unsigned char timer_get_tick_count_lsbyte()
 	return (unsigned char)(_t[1] & 0x00ff);
 }
 
-short timer_compare(unsigned short* t0, unsigned short* t1)
+short timer_compare(volatile unsigned short t0[2], volatile unsigned short t1[2])
 {
 	if (t0[0] > t1[0])
 	{
@@ -110,7 +109,7 @@ short timer_compare(unsigned short* t0, unsigned short* t1)
 	return 0;
 }
 
-void timer_add_seconds(unsigned short* t, unsigned short seconds)
+void timer_add_seconds(unsigned short t[2], unsigned short seconds)
 {
 	const unsigned short t1 = t[1];
 
@@ -124,7 +123,7 @@ void timer_add_seconds(unsigned short* t, unsigned short seconds)
 }
 
 // Assumes t0 > t1.
-unsigned short timer_get_diff_seconds(unsigned short* t0, unsigned short* t1)
+unsigned short timer_get_diff_seconds(unsigned short t0[2], unsigned short t1[2])
 {
 	unsigned short diff = 0;
 

@@ -32,7 +32,7 @@ void sp_mon_check()
 	_sp_buckets[sp >> SP_MON_BUCKET_SIZE_BITS]++;
 }
 
-unsigned short* sp_mon_get_buckets()
+volatile unsigned short* sp_mon_get_buckets()
 {
 	return _sp_buckets;
 }

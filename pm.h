@@ -5,6 +5,6 @@ void pm_reset();
 void pm_yield();
 
 void pm_update_wake_counter(unsigned char c);
-void pm_get_wake_count(unsigned short* w);
+void pm_get_wake_count(unsigned short w[2]);
 
 #endif // _PM_H_

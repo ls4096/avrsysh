@@ -11,11 +11,11 @@
 
 
 void timer_init();
-void timer_get_tick_count(unsigned short* t);
+void timer_get_tick_count(unsigned short t[2]);
 unsigned char timer_get_tick_count_lsbyte();
-short timer_compare(unsigned short* t0, unsigned short* t1);
-void timer_add_seconds(unsigned short* t0, unsigned short seconds);
-unsigned short timer_get_diff_seconds(unsigned short* t0, unsigned short* t1);
+short timer_compare(volatile unsigned short t0[2], volatile unsigned short t1[2]);
+void timer_add_seconds(unsigned short t0[2], unsigned short seconds);
+unsigned short timer_get_diff_seconds(unsigned short t0[2], unsigned short t1[2]);
 
 
 typedef struct {

@@ -1,10 +1,12 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "command.h"
 #include "led.h"
 #include "serial.h"
 #include "thermal.h"
+#include "timer.h"
 
 #define CMD_BUF_SIZE 32
 

@@ -1,7 +1,10 @@
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "pong.h"
 
+#include "game.h"
 #include "pm.h"
 #include "rng.h"
 #include "serial.h"

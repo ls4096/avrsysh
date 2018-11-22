@@ -1,7 +1,9 @@
 #include <stdbool.h>
+#include <string.h>
 
 #include "snake.h"
 
+#include "game.h"
 #include "pm.h"
 #include "rng.h"
 #include "serial.h"

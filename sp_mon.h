@@ -18,7 +18,7 @@ void sp_mon_enable(bool enable);
 
 void sp_mon_check();
 
-unsigned short* sp_mon_get_buckets();
+volatile unsigned short* sp_mon_get_buckets();
 
 
 #endif // _SP_MON_H_
