@@ -2,13 +2,11 @@
 #include <string.h>
 
 #include "snake.h"
+#include "game.h"
 
 #include "draw.h"
-#include "pm.h"
 #include "rng.h"
-#include "serial.h"
 #include "term.h"
-#include "timer.h"
 
 
 // WARNING: Odd values for width/height not tested and not likely to work as is!
@@ -48,9 +46,7 @@
 
 #define MAX_FOOD_PLACE_ATTEMPTS 5
 
-
-#define GAME_FPS 12
-#define GAME_FRAME_TICKS (TIMER_TICKS_PER_SECOND / GAME_FPS)
+#define SNAKE_GAME_FPS 12
 
 
 typedef struct
@@ -78,12 +74,6 @@ static void snake_dir_change(snake_t* snake, unsigned char dir);
 static bool update_snake(snake_t* snake, food_t* food, unsigned char* map);
 static void update_food(food_t* food, unsigned char* map);
 static void draw_frame(snake_t* snake, food_t* food);
-static bool should_draw_frame();
-static void add_frame_time(unsigned short t[2]);
-static unsigned char get_char(bool block);
-
-
-static unsigned short _next_frame_time[2] = { 0, 0 };
 
 
 void snake_main()
@@ -148,11 +138,14 @@ void snake_main()
 	term_cursor_home();
 
 
-	unsigned char c = get_char(true);
+	game_context_t ctx;
+	game_context_init(&ctx, SNAKE_GAME_FPS);
+
+	unsigned char c = game_get_char(&ctx, true);
 	bool check = false;
 	while (1)
 	{
-		if (should_draw_frame())
+		if (game_should_draw_frame(&ctx))
 		{
 			update_food(&food, map);
 			check = update_snake(&snake, &food, map);
@@ -182,7 +175,7 @@ void snake_main()
 		}
 
 		do {
-			c = get_char(check);
+			c = game_get_char(&ctx, check);
 		} while (check && c != RESUME_C && c != QUIT_C);
 	}
 
@@ -362,71 +355,4 @@ static void draw_frame(snake_t* snake, food_t* food)
 		draw_horizontal(food->x + 1, food->y + 1, 1, FOOD_C);
 		food->need_draw = false;
 	}
-}
-
-static bool should_draw_frame()
-{
-	if (_next_frame_time[0] == 0 && _next_frame_time[1] == 0)
-	{
-		timer_get_tick_count(_next_frame_time);
-		add_frame_time(_next_frame_time);
-		return true;
-	}
-
-	unsigned short t[2];
-	timer_get_tick_count(t);
-	if (timer_compare(t, _next_frame_time) >= 0)
-	{
-		_next_frame_time[0] = t[0];
-		_next_frame_time[1] = t[1];
-		add_frame_time(_next_frame_time);
-		return true;
-	}
-
-	return false;
-}
-
-static void add_frame_time(unsigned short t[2])
-{
-	t[1] += GAME_FRAME_TICKS;
-	if (t[1] < GAME_FRAME_TICKS)
-	{
-		t[0]++;
-	}
-}
-
-static unsigned char get_char(bool block)
-{
-	if (!block)
-	{
-		unsigned short t[2];
-		timer_get_tick_count(t);
-		if (timer_compare(t, _next_frame_time) >= 0)
-		{
-			return 0;
-		}
-		else
-		{
-			timer_notify_t tn;
-
-			tn.t[0] = _next_frame_time[0];
-			tn.t[1] = _next_frame_time[1];
-			tn.notify = false;
-
-			timer_notify_register(&tn);
-			while (!tn.notify)
-			{
-				pm_yield();
-
-				if (serial_has_next_byte())
-				{
-					return serial_read_next_byte();
-				}
-			}
-
-			return 0;
-		}
-	}
-
-	return serial_read_next_byte();
 }
