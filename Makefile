@@ -2,8 +2,8 @@ all: avrsysh.hex
 
 OBJS = \
 	command.o \
+	draw.o \
 	dump.o \
-	game.o \
 	led.o \
 	main.o \
 	pm.o \

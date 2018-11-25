@@ -3,7 +3,7 @@
 
 #include "snake.h"
 
-#include "game.h"
+#include "draw.h"
 #include "pm.h"
 #include "rng.h"
 #include "serial.h"
@@ -79,8 +79,8 @@ static bool update_snake(snake_t* snake, food_t* food, unsigned char* map);
 static void update_food(food_t* food, unsigned char* map);
 static void draw_frame(snake_t* snake, food_t* food);
 static bool should_draw_frame();
-static void add_frame_time(unsigned short* t);
-static char get_char(bool block);
+static void add_frame_time(unsigned short t[2]);
+static unsigned char get_char(bool block);
 
 
 static unsigned short _next_frame_time[2] = { 0, 0 };
@@ -135,18 +135,20 @@ void snake_main()
 	}
 
 
+	// Prepare for drawing on screen.
 	term_set_cursor(false);
 	term_clear_screen();
 
 	// Draw walls.
-	game_draw_border(SNAKE_WIDTH, SNAKE_HEIGHT, WALL_C);
+	draw_border(SNAKE_WIDTH, SNAKE_HEIGHT, WALL_C);
 
 	// Draw snake.
-	game_draw_horizontal(snake.tail_x + 1, snake.tail_y + 1, SNAKE_START_LEN, SNAKE_C);
+	draw_horizontal(snake.tail_x + 1, snake.tail_y + 1, SNAKE_START_LEN, SNAKE_C);
 
 	term_cursor_home();
 
-	char c = get_char(true);
+
+	unsigned char c = get_char(true);
 	bool check = false;
 	while (1)
 	{
@@ -349,15 +351,15 @@ static void update_food(food_t* food, unsigned char* map)
 static void draw_frame(snake_t* snake, food_t* food)
 {
 	// Draw snake head.
-	game_draw_horizontal(snake->head_x + 1, snake->head_y + 1, 1, SNAKE_C);
+	draw_horizontal(snake->head_x + 1, snake->head_y + 1, 1, SNAKE_C);
 
 	// Clear snake tail.
-	game_draw_horizontal(snake->tail_prev_x + 1, snake->tail_prev_y + 1, 1, CLEAR_C);
+	draw_horizontal(snake->tail_prev_x + 1, snake->tail_prev_y + 1, 1, CLEAR_C);
 
 	// Draw food, if needed.
 	if (food->need_draw && food->active)
 	{
-		game_draw_horizontal(food->x + 1, food->y + 1, 1, FOOD_C);
+		draw_horizontal(food->x + 1, food->y + 1, 1, FOOD_C);
 		food->need_draw = false;
 	}
 }
@@ -373,8 +375,7 @@ static bool should_draw_frame()
 
 	unsigned short t[2];
 	timer_get_tick_count(t);
-	if ((t[0] > _next_frame_time[0]) ||
-		((t[0] == _next_frame_time[0]) && (t[1] >= _next_frame_time[1])))
+	if (timer_compare(t, _next_frame_time) >= 0)
 	{
 		_next_frame_time[0] = t[0];
 		_next_frame_time[1] = t[1];
@@ -385,7 +386,7 @@ static bool should_draw_frame()
 	return false;
 }
 
-static void add_frame_time(unsigned short* t)
+static void add_frame_time(unsigned short t[2])
 {
 	t[1] += GAME_FRAME_TICKS;
 	if (t[1] < GAME_FRAME_TICKS)
@@ -394,14 +395,13 @@ static void add_frame_time(unsigned short* t)
 	}
 }
 
-static char get_char(bool block)
+static unsigned char get_char(bool block)
 {
 	if (!block)
 	{
 		unsigned short t[2];
 		timer_get_tick_count(t);
-		if ((t[0] > _next_frame_time[0]) ||
-			((t[0] == _next_frame_time[0]) && (t[1] >= _next_frame_time[1])))
+		if (timer_compare(t, _next_frame_time) >= 0)
 		{
 			return 0;
 		}

@@ -52,8 +52,6 @@ static void pc_sleep(const char* cmd_str);
 static void pc_rand();
 static void pc_sp_mon_enable(bool enable);
 static void pc_sp_mon_info();
-static void pc_pong();
-static void pc_snake();
 
 char process_command(unsigned char* cmd_str)
 {
@@ -124,11 +122,11 @@ char process_command(unsigned char* cmd_str)
 	}
 	else if (strcmp(cmd_str, CMD_PONG) == 0)
 	{
-		pc_pong();
+		pong_main();
 	}
 	else if (strcmp(cmd_str, CMD_SNAKE) == 0)
 	{
-		pc_snake();
+		snake_main();
 	}
 	else
 	{
@@ -392,15 +390,4 @@ static void pc_sp_mon_info()
 		sprintf(buf, "no data\r\n");
 		serial_write(buf, strlen(buf));
 	}
-}
-
-static void pc_pong()
-{
-	pong_init();
-	pong_start();
-}
-
-static void pc_snake()
-{
-	snake_main();
 }

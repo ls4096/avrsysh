@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "game.h"
+#include "draw.h"
 
 #include "serial.h"
 #include "term.h"
 
-void game_draw_vertical(short x, short y, short h, char c)
+void draw_vertical(short x, short y, short h, char c)
 {
 	term_move_cursor(x, y);
 
@@ -20,7 +20,7 @@ void game_draw_vertical(short x, short y, short h, char c)
 	}
 }
 
-void game_draw_horizontal(short x, short y, short l, char c)
+void draw_horizontal(short x, short y, short l, char c)
 {
 	term_move_cursor(x, y);
 
@@ -30,7 +30,7 @@ void game_draw_horizontal(short x, short y, short l, char c)
 	}
 }
 
-void game_draw_border(short w, short h, short c)
+void draw_border(short w, short h, short c)
 {
 	char buf[8];
 	for (short i = 0; i < h; i++)

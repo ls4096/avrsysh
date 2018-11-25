@@ -4,7 +4,7 @@
 
 #include "pong.h"
 
-#include "game.h"
+#include "draw.h"
 #include "pm.h"
 #include "rng.h"
 #include "serial.h"
@@ -66,7 +66,7 @@ static void update_ball(ball_t* b);
 static short check_ball_position(ball_t* b, paddle_t* p0, paddle_t* p1);
 static void draw_frame(paddle_t* p0, paddle_t* p1, ball_t* ball, unsigned short* scores);
 static bool should_draw_frame();
-static void add_frame_time(unsigned short* t);
+static void add_frame_time(unsigned short t[2]);
 static unsigned char get_char(bool block);
 static short ball_c2v(short c);
 static short ball_v2c(short v);
@@ -75,26 +75,9 @@ static short ball_v2c(short v);
 static unsigned short _next_frame_time[2] = { 0, 0 };
 
 
-void pong_init()
+void pong_main()
 {
-	term_set_cursor(false);
-	term_clear_screen();
-
-	// Draw walls.
-	game_draw_border(PONG_WIDTH, PONG_HEIGHT, WALL_C);
-
-	// Draw paddles.
-	game_draw_vertical(PADDLE0_X, PADDLE_Y_INIT, PADDLE_H, PADDLE_C);
-	game_draw_vertical(PADDLE1_X, PADDLE_Y_INIT, PADDLE_H, PADDLE_C);
-
-	// Draw ball.
-	game_draw_vertical(BALL_X_INIT_C, BALL_Y_INIT_C, 1, BALL_C);
-
-	term_cursor_home();
-}
-
-void pong_start()
-{
+	// Init paddles.
 	paddle_t p0 = { PADDLE_Y_INIT, PADDLE_Y_INIT };
 	paddle_t p1 = { PADDLE_Y_INIT, PADDLE_Y_INIT };
 
@@ -111,9 +94,29 @@ void pong_start()
 		ball_vy = -ball_vy;
 	}
 
+	// Init ball.
 	ball_t ball = { ball_c2v(BALL_X_INIT_C), ball_c2v(BALL_Y_INIT_C), ball_vx, ball_vy };
 
+	// Init scores.
 	unsigned short scores[2] = { 0, 0 };
+
+
+	// Prepare for drawing on screen.
+	term_set_cursor(false);
+	term_clear_screen();
+
+	// Draw walls.
+	draw_border(PONG_WIDTH, PONG_HEIGHT, WALL_C);
+
+	// Draw paddles.
+	draw_vertical(PADDLE0_X, p0.y, PADDLE_H, PADDLE_C);
+	draw_vertical(PADDLE1_X, p1.y, PADDLE_H, PADDLE_C);
+
+	// Draw ball.
+	draw_vertical(ball_v2c(ball.x), ball_v2c(ball.y), 1, BALL_C);
+
+	term_cursor_home();
+
 
 	unsigned char c = get_char(true);
 	short check = 0;
@@ -232,16 +235,16 @@ static void draw_frame(paddle_t* p0, paddle_t* p1, ball_t* ball, unsigned short*
 	// Redraw paddle 0, if necessary.
 	if (p0->y_prev != p0->y)
 	{
-		game_draw_vertical(PADDLE0_X, p0->y_prev, PADDLE_H, CLEAR_C);
-		game_draw_vertical(PADDLE0_X, p0->y, PADDLE_H, PADDLE_C);
+		draw_vertical(PADDLE0_X, p0->y_prev, PADDLE_H, CLEAR_C);
+		draw_vertical(PADDLE0_X, p0->y, PADDLE_H, PADDLE_C);
 		p0->y_prev = p0->y;
 	}
 
 	// Redraw paddle 1, if necessary.
 	if (p1->y_prev != p1->y)
 	{
-		game_draw_vertical(PADDLE1_X, p1->y_prev, PADDLE_H, CLEAR_C);
-		game_draw_vertical(PADDLE1_X, p1->y, PADDLE_H, PADDLE_C);
+		draw_vertical(PADDLE1_X, p1->y_prev, PADDLE_H, CLEAR_C);
+		draw_vertical(PADDLE1_X, p1->y, PADDLE_H, PADDLE_C);
 		p1->y_prev = p1->y;
 	}
 
@@ -250,11 +253,11 @@ static void draw_frame(paddle_t* p0, paddle_t* p1, ball_t* ball, unsigned short*
 
 	// Determine what is at the ball's previous position.
 	char ball_prev_c;
-	if (((ball_prev_x == PADDLE0_X) && \
-		(ball_prev_y >= p0->y) && \
-		(ball_prev_y < p0->y + PADDLE_H)) || \
-		((ball_prev_x == PADDLE1_X) && \
-		(ball_prev_y >= p1->y) && \
+	if (((ball_prev_x == PADDLE0_X) &&
+		(ball_prev_y >= p0->y) &&
+		(ball_prev_y < p0->y + PADDLE_H)) ||
+		((ball_prev_x == PADDLE1_X) &&
+		(ball_prev_y >= p1->y) &&
 		(ball_prev_y < p1->y + PADDLE_H)))
 	{
 		// Previous ball position is on paddle.
@@ -267,8 +270,8 @@ static void draw_frame(paddle_t* p0, paddle_t* p1, ball_t* ball, unsigned short*
 	}
 
 	// Draw new ball position.
-	game_draw_vertical(ball_prev_x, ball_prev_y, 1, ball_prev_c);
-	game_draw_vertical(ball_v2c(ball->x), ball_v2c(ball->y), 1, BALL_C);
+	draw_vertical(ball_prev_x, ball_prev_y, 1, ball_prev_c);
+	draw_vertical(ball_v2c(ball->x), ball_v2c(ball->y), 1, BALL_C);
 
 	// Print scores, if necessary.
 	if (scores)
@@ -291,8 +294,7 @@ static bool should_draw_frame()
 
 	unsigned short t[2];
 	timer_get_tick_count(t);
-	if ((t[0] > _next_frame_time[0]) ||
-		((t[0] == _next_frame_time[0]) && (t[1] >= _next_frame_time[1])))
+	if (timer_compare(t, _next_frame_time) >= 0)
 	{
 		_next_frame_time[0] = t[0];
 		_next_frame_time[1] = t[1];
@@ -303,7 +305,7 @@ static bool should_draw_frame()
 	return false;
 }
 
-static void add_frame_time(unsigned short* t)
+static void add_frame_time(unsigned short t[2])
 {
 	t[1] += GAME_FRAME_TICKS;
 	if (t[1] < GAME_FRAME_TICKS)
@@ -318,8 +320,7 @@ static unsigned char get_char(bool block)
 	{
 		unsigned short t[2];
 		timer_get_tick_count(t);
-		if ((t[0] > _next_frame_time[0]) ||
-			((t[0] == _next_frame_time[0]) && (t[1] >= _next_frame_time[1])))
+		if (timer_compare(t, _next_frame_time) >= 0)
 		{
 			return 0;
 		}
