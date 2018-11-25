@@ -143,11 +143,11 @@ static void pc_help()
 {
 	// General
 	help_print_f0("General:");
-	help_print_f2(CMD_HELP, "show help");
+	help_print_f1(CMD_HELP);
 	help_print_f2(CMD_SYS_INFO, "show system info");
 	help_print_f2(CMD_CLEAR, "clear screen");
 	help_print_f2a(CMD_SLEEP, "N: sleep N seconds");
-	help_print_f2(CMD_RAND, "show random number");
+	help_print_f2(CMD_RAND, "get random number");
 	help_print_f1(CMD_LED_ON);
 	help_print_f1(CMD_LED_OFF);
 	help_print_f1(CMD_RESET);
@@ -159,7 +159,7 @@ static void pc_help()
 	help_print_f2a(CMD_SET_TIME, "HH:MM:SS");
 
 	// Stack Pointer Monitor
-	help_print_f0("Stack Pointer Monitor:");
+	help_print_f0("SP Monitor:");
 	help_print_f2(CMD_SP_MON_ON, "start");
 	help_print_f2(CMD_SP_MON_OFF, "stop");
 	help_print_f2(CMD_SP_MON_INFO, "show results");
@@ -225,7 +225,7 @@ static void pc_sys_info()
 	// TODO: Fix? This will overflow after 65535 seconds.
 	short s = ticks[0] * TIMER_SECONDS_PER_UPPER_TICK + (ticks[1] / TIMER_TICKS_PER_SECOND);
 
-	sprintf(buf, "uptime: %u seconds\r\n", s);
+	sprintf(buf, "uptime: %u s\r\n", s);
 	serial_write(buf, strlen(buf));
 
 	unsigned short w[2];
@@ -237,7 +237,7 @@ static void pc_sys_info()
 	sprintf(buf, "ticks: 0x%04x 0x%04x\r\n", ticks[0], ticks[1]);
 	serial_write(buf, strlen(buf));
 
-	sprintf(buf, "ticks/sec: %u\r\n", TIMER_TICKS_PER_SECOND);
+	sprintf(buf, "ticks/s: %u\r\n", TIMER_TICKS_PER_SECOND);
 	serial_write(buf, strlen(buf));
 
 	sprintf(buf, "notify timers: %u\r\n", timer_get_notify_registered_count());
