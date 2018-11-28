@@ -4,6 +4,7 @@
 
 #include "command.h"
 
+#include "bricks.h"
 #include "dump.h"
 #include "led.h"
 #include "pm.h"
@@ -37,6 +38,7 @@ static const char* CMD_SP_MON_OFF = "spm_off";
 static const char* CMD_SP_MON_INFO = "spm_info";
 static const char* CMD_PONG = "pong";
 static const char* CMD_SNAKE = "snake";
+static const char* CMD_BRICKS = "bricks";
 
 static void pc_help();
 static void help_print_f0(const char* s);
@@ -128,6 +130,10 @@ char process_command(unsigned char* cmd_str)
 	{
 		snake_main();
 	}
+	else if (strcmp(cmd_str, CMD_BRICKS) == 0)
+	{
+		bricks_main();
+	}
 	else
 	{
 		char buf[20];
@@ -168,6 +174,7 @@ static void pc_help()
 	help_print_f0("Games:");
 	help_print_f1(CMD_PONG);
 	help_print_f1(CMD_SNAKE);
+	help_print_f1(CMD_BRICKS);
 }
 
 static void help_print_f0(const char* s)

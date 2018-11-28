@@ -1,6 +1,7 @@
 all: avrsysh.hex
 
 OBJS = \
+	bricks.o \
 	command.o \
 	draw.o \
 	dump.o \
