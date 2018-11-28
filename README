@@ -21,6 +21,8 @@ Features of "avrsysh" include:
 		- 'w'/'s' for player 1 controls; 'o'/'l' for player 2 controls; space to resume; 'Q' to quit
 	- Snake
 		- "wasd" to control; space to resume; 'Q' to quit
+	- Bricks
+		- 'a'/'d' to control; space to resume; 'Q' to quit
 
 
 ====================
