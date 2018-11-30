@@ -59,6 +59,7 @@ typedef struct
 static void paddle_left(paddle_t* p);
 static void paddle_right(paddle_t* p);
 static short update_and_check_ball_position(ball_t* b, paddle_t* p, unsigned char* brick_map);
+static void adjust_ball_angle_for_paddle_pos(ball_t* b, short paddle_pos);
 static void draw_frame(paddle_t* p, ball_t* ball, short score);
 static short ball_c2v(short c);
 static short ball_v2c(short v);
@@ -73,8 +74,9 @@ void bricks_main()
 	// Init paddle.
 	paddle_t p = { PADDLE_X_INIT, PADDLE_X_INIT };
 
-	const short ball_vx_init = 1 << 7;
-	const short ball_vy_init = -(1 << 7);
+	// Start ball trajectory 30 degrees right of vertical.
+	const short ball_vx_init = 90;
+	const short ball_vy_init = -156;
 
 	// Init ball.
 	ball_t ball = { ball_c2v(PADDLE_X_INIT + (PADDLE_W / 2)), ball_c2v(PADDLE_Y - 1), ball_vx_init, ball_vy_init, false };
@@ -224,10 +226,20 @@ static short update_and_check_ball_position(ball_t* b, paddle_t* p, unsigned cha
 	// Bounce off top/bottom?
 	if ((b->vy > 0 && ball_y >= BRICKS_HEIGHT - 1) || ((b->vy < 0 && ball_y <= 2)))
 	{
-		if (ball_y == PADDLE_Y && (ball_x < p->x || ball_x > p->x + PADDLE_W))
+		if (ball_y == PADDLE_Y)
 		{
-			// Ball missed paddle.
-			check = -10;
+			// Ball at paddle level.
+			if (ball_x < p->x || ball_x > p->x + PADDLE_W)
+			{
+				// Ball missed paddle.
+				check = -10;
+			}
+			else
+			{
+				// Ball on paddle.
+				short paddle_pos = ball_x - p->x;
+				adjust_ball_angle_for_paddle_pos(b, paddle_pos);
+			}
 		}
 
 		b->vy = -b->vy;
@@ -252,6 +264,43 @@ static short update_and_check_ball_position(ball_t* b, paddle_t* p, unsigned cha
 	b->y += b->vy;
 
 	return check;
+}
+
+static void adjust_ball_angle_for_paddle_pos(ball_t* b, short paddle_pos)
+{
+	switch (paddle_pos)
+	{
+	case 0:
+		// 30 deg.
+		b->vx = -156;
+		b->vy = 90;
+		break;
+	case 1:
+		// 60 deg.
+		b->vx = -90;
+		b->vy = 156;
+		break;
+	case 2:
+		// 90 deg.
+		b->vx = 0;
+		b->vy = 180;
+		break;
+	case 3:
+		// 120 deg.
+		b->vx = 90;
+		b->vy = 156;
+		break;
+	case 4:
+		// 150 deg.
+		b->vx = 156;
+		b->vy = 90;
+		break;
+	default:
+		// 120 deg.
+		b->vx = 90;
+		b->vy = 156;
+		break;
+	}
 }
 
 static void draw_frame(paddle_t* p, ball_t* ball, short score)
