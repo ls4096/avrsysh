@@ -32,7 +32,7 @@
 #define PADDLE_X_INIT (BRICKS_WIDTH / 2 - 2)
 #define PADDLE_Y (BRICKS_HEIGHT - 1)
 
-#define SCORE_POS_X (BRICKS_WIDTH / 2 - 5)
+#define SCORE_POS_X (BRICKS_WIDTH / 2 - 3)
 #define SCORE_POS_Y (BRICKS_HEIGHT + 2)
 
 #define BRICKS_GAME_FPS 24
@@ -232,7 +232,7 @@ static short update_and_check_ball_position(ball_t* b, paddle_t* p, unsigned cha
 			if (ball_x < p->x || ball_x > p->x + PADDLE_W)
 			{
 				// Ball missed paddle.
-				check = -10;
+				check = -25;
 			}
 			else
 			{
@@ -345,9 +345,9 @@ static void draw_frame(paddle_t* p, ball_t* ball, short score)
 	// Print score, if necessary.
 	if (score)
 	{
-		char buf[8];
+		char buf[10];
 		term_move_cursor(SCORE_POS_X, SCORE_POS_Y);
-		sprintf(buf, "%d", score);
+		sprintf(buf, "%d   ", score);
 		serial_write(buf, strlen(buf));
 	}
 }
