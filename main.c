@@ -51,10 +51,13 @@ static short loop(void)
 {
 	unsigned char buf[CMD_BUF_SIZE];
 	unsigned char last_cmd[CMD_BUF_SIZE];
-	short i = 0;
+	short buf_i = 0;
 	bool esc = false;
 
 	serial_write(PROMPT, strlen(PROMPT));
+
+	memset(buf, 0, CMD_BUF_SIZE);
+	memset(last_cmd, 0, CMD_BUF_SIZE);
 
 	while (1)
 	{
@@ -66,6 +69,7 @@ static short loop(void)
 			{
 				esc = false;
 			}
+
 			if (c == 'A')
 			{
 				// First, erase anything currently in the command buffer.
@@ -77,47 +81,74 @@ static short loop(void)
 
 				strcpy(buf, last_cmd);
 				serial_write(buf, strlen(buf));
-				i = strlen(buf);
+				buf_i = strlen(buf);
 			}
 		}
 		else if (c == 0x08 || c == 0x7f)
 		{
-			if (i != 0)
+			if (buf_i != 0)
 			{
 				serial_write(BACKSPACE, sizeof(BACKSPACE));
-				buf[--i] = 0;
+				buf[--buf_i] = 0;
+			}
+		}
+		else if (c == '\t')
+		{
+			if (buf_i == 0)
+			{
+				continue;
+			}
+
+			unsigned short match_count;
+			const char* completed = command_tab_complete(buf, buf_i, &match_count);
+			if (completed != 0)
+			{
+				for (short i = 0; i < buf_i; i++)
+				{
+					serial_write(BACKSPACE, sizeof(BACKSPACE));
+				}
+				strcpy(buf, completed);
+				buf_i = strlen(completed);
+				serial_write(buf, buf_i);
+			}
+			else if (match_count > 1)
+			{
+				serial_write_newline();
+				serial_write(PROMPT, strlen(PROMPT));
+				serial_write(buf, strlen(buf));
 			}
 		}
 		else if (c == 0x0d)
 		{
 			serial_write_newline();
-			buf[i++] = 0;
+			buf[buf_i++] = 0;
 
-			if (i > 1)
+			if (buf_i > 1)
 			{
 				strcpy(last_cmd, buf);
 			}
 
-			char rc = process_command(buf);
+			char rc = command_process(buf);
 			if (rc < 0)
 			{
 				return rc;
 			}
 
-			buf[0] = 0;
-			i = 0;
+			short buf_len = strlen(buf) + 1;
+			memset(buf, 0, buf_len);
+			buf_i = 0;
 
 			serial_write(PROMPT, strlen(PROMPT));
 		}
 		else if (c >= 0x20 && c <= 0x7e)
 		{
-			if (i == CMD_BUF_SIZE - 1)
+			if (buf_i == CMD_BUF_SIZE - 1)
 			{
 				continue;
 			}
 
 			serial_tx_byte(c);
-			buf[i++] = c;
+			buf[buf_i++] = c;
 		}
 		else if (c == 0x1b)
 		{

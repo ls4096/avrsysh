@@ -55,7 +55,7 @@ static void pc_rand();
 static void pc_sp_mon_enable(bool enable);
 static void pc_sp_mon_info();
 
-char process_command(unsigned char* cmd_str)
+char command_process(unsigned char* cmd_str)
 {
 	if (strlen(cmd_str) == 0)
 	{
@@ -144,6 +144,63 @@ char process_command(unsigned char* cmd_str)
 
 	return 0;
 }
+
+const char* command_tab_complete(const char* cmd, unsigned short cmd_len, unsigned short* match_count)
+{
+	// All commands, ordered alphabetically
+	const char* CMDS[] = {
+		CMD_BRICKS,
+		CMD_CLEAR,
+		CMD_DUMP,
+		CMD_HELP,
+		CMD_LED_OFF,
+		CMD_LED_ON,
+		CMD_PONG,
+		CMD_RAND,
+		CMD_RESET,
+		CMD_SET_TIME,
+		CMD_SLEEP,
+		CMD_SNAKE,
+		CMD_SP_MON_INFO,
+		CMD_SP_MON_OFF,
+		CMD_SP_MON_ON,
+		CMD_STOP,
+		CMD_SYS_INFO,
+		CMD_TIME
+	};
+
+	const char* last_match = 0;
+	unsigned short matches = 0;
+	unsigned short cmd_num = sizeof(CMDS) / sizeof(const char*);
+
+	for (short i = 0; i < cmd_num; i++)
+	{
+		if (strncmp(cmd, CMDS[i], cmd_len) == 0)
+		{
+			matches++;
+
+			if (matches == 2)
+			{
+				serial_write_newline();
+				serial_write(last_match, strlen(last_match));
+			}
+
+			if (matches >= 2)
+			{
+				serial_tx_byte(' ');
+				serial_tx_byte(' ');
+				serial_tx_byte(' ');
+				serial_write(CMDS[i], strlen(CMDS[i]));
+			}
+
+			last_match = CMDS[i];
+		}
+	}
+
+	*match_count = matches;
+	return ((matches == 1) ? last_match : 0);
+}
+
 
 static void pc_help()
 {
