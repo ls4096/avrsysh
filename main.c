@@ -68,6 +68,13 @@ static short loop(void)
 			}
 			if (c == 'A')
 			{
+				// First, erase anything currently in the command buffer.
+				short back = strlen(buf);
+				for (short i = 0; i < back; i++)
+				{
+					serial_write(BACKSPACE, sizeof(BACKSPACE));
+				}
+
 				strcpy(buf, last_cmd);
 				serial_write(buf, strlen(buf));
 				i = strlen(buf);
@@ -97,6 +104,7 @@ static short loop(void)
 				return rc;
 			}
 
+			buf[0] = 0;
 			i = 0;
 
 			serial_write(PROMPT, strlen(PROMPT));
