@@ -7,6 +7,7 @@
 
 #include "draw.h"
 #include "rng.h"
+#include "serial.h"
 #include "term.h"
 
 

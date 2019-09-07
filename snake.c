@@ -24,7 +24,6 @@
 #define FOOD_C '+'
 #define SPACE_C ' '
 #define CLEAR_C SPACE_C
-#define RESUME_C SPACE_C
 #define QUIT_C 'Q'
 
 #define KEY_UP_C 'w'
@@ -176,7 +175,12 @@ void snake_main()
 
 		do {
 			c = game_get_char(&ctx, check);
-		} while (check && c != RESUME_C && c != QUIT_C);
+		} while (check && c != QUIT_C);
+
+		if (c == QUIT_C)
+		{
+			break;
+		}
 	}
 
 	term_clear_screen();
