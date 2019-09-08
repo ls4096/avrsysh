@@ -5,11 +5,13 @@ OBJS = \
 	command.o \
 	draw.o \
 	dump.o \
+	grep.o \
 	led.o \
 	main.o \
 	pm.o \
 	pong.o \
 	rng.o \
+	seq.o \
 	serial.o \
 	snake.o \
 	sp_mon.o \

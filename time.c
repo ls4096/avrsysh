@@ -71,6 +71,7 @@ void time_get_time(char* str)
 	if (!_set)
 	{
 		sprintf(str, "not set");
+		return;
 	}
 
 	unsigned short t[2];

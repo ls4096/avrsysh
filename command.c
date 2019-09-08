@@ -6,10 +6,12 @@
 
 #include "bricks.h"
 #include "dump.h"
+#include "grep.h"
 #include "led.h"
 #include "pm.h"
 #include "pong.h"
 #include "rng.h"
+#include "seq.h"
 #include "serial.h"
 #include "snake.h"
 #include "sp_mon.h"
@@ -39,6 +41,8 @@ static const char* CMD_SP_MON_INFO = "spm_info";
 static const char* CMD_PONG = "pong";
 static const char* CMD_SNAKE = "snake";
 static const char* CMD_BRICKS = "bricks";
+static const char* CMD_GREP = "grep";
+static const char* CMD_SEQ = "seq";
 
 static void pc_help();
 static void help_print_f0(const char* s);
@@ -134,6 +138,14 @@ char command_process(unsigned char* cmd_str)
 	{
 		bricks_main();
 	}
+	else if (strncmp(cmd_str, CMD_GREP, strlen(CMD_GREP)) == 0)
+	{
+		grep_main(cmd_str);
+	}
+	else if (strncmp(cmd_str, CMD_SEQ, strlen(CMD_SEQ)) == 0)
+	{
+		seq_main(cmd_str);
+	}
 	else
 	{
 		char buf[20];
@@ -152,12 +164,14 @@ const char* command_tab_complete(const char* cmd, unsigned short cmd_len, unsign
 		CMD_BRICKS,
 		CMD_CLEAR,
 		CMD_DUMP,
+		CMD_GREP,
 		CMD_HELP,
 		CMD_LED_OFF,
 		CMD_LED_ON,
 		CMD_PONG,
 		CMD_RAND,
 		CMD_RESET,
+		CMD_SEQ,
 		CMD_SET_TIME,
 		CMD_SLEEP,
 		CMD_SNAKE,
@@ -232,6 +246,11 @@ static void pc_help()
 	help_print_f1(CMD_PONG);
 	help_print_f1(CMD_SNAKE);
 	help_print_f1(CMD_BRICKS);
+
+	// Utils
+	help_print_f0("Utils:");
+	help_print_f2a(CMD_GREP, "S");
+	help_print_f2a(CMD_SEQ, "X Y");
 }
 
 static void help_print_f0(const char* s)
