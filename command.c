@@ -59,6 +59,9 @@ static void pc_rand();
 static void pc_sp_mon_enable(bool enable);
 static void pc_sp_mon_info();
 
+static bool begins_with_cmd(const char* str, const char* cmd);
+
+
 char command_process(unsigned char* cmd_str)
 {
 	if (strlen(cmd_str) == 0)
@@ -66,83 +69,83 @@ char command_process(unsigned char* cmd_str)
 		return 0;
 	}
 
-	if (strcmp(cmd_str, CMD_RESET) == 0)
+	if (begins_with_cmd(cmd_str, CMD_RESET))
 	{
 		return PC_RC_RESET;
 	}
-	else if (strcmp(cmd_str, CMD_STOP) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_STOP))
 	{
 		return PC_RC_STOP;
 	}
-	else if (strcmp(cmd_str, CMD_DUMP) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_DUMP))
 	{
 		dump_state();
 	}
-	else if (strcmp(cmd_str, CMD_HELP) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_HELP))
 	{
 		pc_help();
 	}
-	else if (strcmp(cmd_str, CMD_LED_ON) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_LED_ON))
 	{
 		pc_led(true);
 	}
-	else if (strcmp(cmd_str, CMD_LED_OFF) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_LED_OFF))
 	{
 		pc_led(false);
 	}
-	else if (strcmp(cmd_str, CMD_SYS_INFO) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_SYS_INFO))
 	{
 		pc_sys_info();
 	}
-	else if (strcmp(cmd_str, CMD_TIME) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_TIME))
 	{
 		pc_time();
 	}
-	else if (strncmp(cmd_str, CMD_SET_TIME, strlen(CMD_SET_TIME)) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_SET_TIME))
 	{
 		pc_settime(cmd_str);
 	}
-	else if (strcmp(cmd_str, CMD_CLEAR) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_CLEAR))
 	{
 		pc_clear();
 	}
-	else if (strncmp(cmd_str, CMD_SLEEP, strlen(CMD_SLEEP)) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_SLEEP))
 	{
 		pc_sleep(cmd_str);
 	}
-	else if (strcmp(cmd_str, CMD_RAND) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_RAND))
 	{
 		pc_rand();
 	}
-	else if (strcmp(cmd_str, CMD_SP_MON_ON) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_SP_MON_ON))
 	{
 		pc_sp_mon_enable(true);
 	}
-	else if (strcmp(cmd_str, CMD_SP_MON_OFF) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_SP_MON_OFF))
 	{
 		pc_sp_mon_enable(false);
 	}
-	else if (strcmp(cmd_str, CMD_SP_MON_INFO) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_SP_MON_INFO))
 	{
 		pc_sp_mon_info();
 	}
-	else if (strcmp(cmd_str, CMD_PONG) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_PONG))
 	{
 		pong_main();
 	}
-	else if (strcmp(cmd_str, CMD_SNAKE) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_SNAKE))
 	{
 		snake_main();
 	}
-	else if (strcmp(cmd_str, CMD_BRICKS) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_BRICKS))
 	{
 		bricks_main();
 	}
-	else if (strncmp(cmd_str, CMD_GREP, strlen(CMD_GREP)) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_GREP))
 	{
 		grep_main(cmd_str);
 	}
-	else if (strncmp(cmd_str, CMD_SEQ, strlen(CMD_SEQ)) == 0)
+	else if (begins_with_cmd(cmd_str, CMD_SEQ))
 	{
 		seq_main(cmd_str);
 	}
@@ -473,4 +476,11 @@ static void pc_sp_mon_info()
 		sprintf(buf, "no data\r\n");
 		serial_write(buf, strlen(buf));
 	}
+}
+
+static bool begins_with_cmd(const char* str, const char* cmd)
+{
+	const unsigned short cmd_len = strlen(cmd);
+
+	return (strncmp(str, cmd, cmd_len) == 0 && (str[cmd_len] == 0x00 || str[cmd_len] == ' '));
 }
