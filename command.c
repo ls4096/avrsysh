@@ -21,6 +21,7 @@
 #include "time.h"
 #include "timer.h"
 #include "util.h"
+#include "wc.h"
 
 #define HELP_LINE_MAX_LENGTH 48
 
@@ -48,6 +49,7 @@ static const char* CMD_SNAKE = "snake";
 static const char* CMD_BRICKS = "bricks";
 static const char* CMD_GREP = "grep";
 static const char* CMD_SEQ = "seq";
+static const char* CMD_WC = "wc";
 
 static char command_process_internal(unsigned char* cmd_str, char process_type);
 static unsigned char* is_pipe_cmd(unsigned char* cmd_str);
@@ -99,7 +101,8 @@ const char* command_tab_complete(const char* cmd, unsigned short cmd_len, unsign
 		CMD_SP_MON_ON,
 		CMD_STOP,
 		CMD_SYS_INFO,
-		CMD_TIME
+		CMD_TIME,
+		CMD_WC
 	};
 
 	const char* last_match = 0;
@@ -382,6 +385,20 @@ static char command_process_internal(unsigned char* cmd_str, char process_type)
 			return -1;
 		}
 	}
+	else if (begins_with_cmd(cmd_str, CMD_WC))
+	{
+		switch (process_type)
+		{
+		case PC_PT_EXEC:
+			wc_main(cmd_str);
+			break;
+		case PC_PT_ALLOW_FIRST:
+		case PC_PT_ALLOW_SECOND:
+			return 0;
+		default:
+			return -1;
+		}
+	}
 	else
 	{
 		if (process_type != PC_PT_EXEC)
@@ -456,6 +473,10 @@ static void* get_entry_for_second(const unsigned char* cmd_str)
 	{
 		return &grep_main;
 	}
+	else if (begins_with_cmd(cmd_str, CMD_WC))
+	{
+		return &wc_main;
+	}
 
 	return 0;
 }
@@ -502,6 +523,7 @@ static void pc_help()
 	help_print_f0("Utils:");
 	help_print_f2a(CMD_GREP, "S");
 	help_print_f2a(CMD_SEQ, "X Y");
+	help_print_f1(CMD_WC);
 }
 
 static void help_print_f0(const char* s)

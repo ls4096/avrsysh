@@ -20,7 +20,8 @@ OBJS = \
 	thread.o \
 	time.o \
 	timer.o \
-	util.o
+	util.o \
+	wc.o
 
 %.o: %.c
 	$(AVR_TOOLS_DIR)/bin/avr-gcc -c -Os -mmcu=atmega328p -DF_CPU=16000000L -o $@ $<
