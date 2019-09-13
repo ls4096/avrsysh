@@ -17,11 +17,16 @@
 #include "sp_mon.h"
 #include "term.h"
 #include "thermal.h"
+#include "thread.h"
 #include "time.h"
 #include "timer.h"
 #include "util.h"
 
 #define HELP_LINE_MAX_LENGTH 48
+
+#define PC_PT_EXEC (0)
+#define PC_PT_ALLOW_FIRST (1)
+#define PC_PT_ALLOW_SECOND (2)
 
 static const char* CMD_HELP = "help";
 static const char* CMD_RESET = "reset";
@@ -44,6 +49,12 @@ static const char* CMD_BRICKS = "bricks";
 static const char* CMD_GREP = "grep";
 static const char* CMD_SEQ = "seq";
 
+static char command_process_internal(unsigned char* cmd_str, char process_type);
+static unsigned char* is_pipe_cmd(unsigned char* cmd_str);
+static char process_second_command(unsigned char* cmd_str);
+static void* get_entry_for_second(const unsigned char* cmd_str);
+static bool begins_with_cmd(const char* str, const char* cmd);
+
 static void pc_help();
 static void help_print_f0(const char* s);
 static void help_print_f1(const char* cmd);
@@ -59,105 +70,10 @@ static void pc_rand();
 static void pc_sp_mon_enable(bool enable);
 static void pc_sp_mon_info();
 
-static bool begins_with_cmd(const char* str, const char* cmd);
-
 
 char command_process(unsigned char* cmd_str)
 {
-	if (strlen(cmd_str) == 0)
-	{
-		return 0;
-	}
-
-	if (begins_with_cmd(cmd_str, CMD_RESET))
-	{
-		return PC_RC_RESET;
-	}
-	else if (begins_with_cmd(cmd_str, CMD_STOP))
-	{
-		return PC_RC_STOP;
-	}
-	else if (begins_with_cmd(cmd_str, CMD_DUMP))
-	{
-		dump_state();
-	}
-	else if (begins_with_cmd(cmd_str, CMD_HELP))
-	{
-		pc_help();
-	}
-	else if (begins_with_cmd(cmd_str, CMD_LED_ON))
-	{
-		pc_led(true);
-	}
-	else if (begins_with_cmd(cmd_str, CMD_LED_OFF))
-	{
-		pc_led(false);
-	}
-	else if (begins_with_cmd(cmd_str, CMD_SYS_INFO))
-	{
-		pc_sys_info();
-	}
-	else if (begins_with_cmd(cmd_str, CMD_TIME))
-	{
-		pc_time();
-	}
-	else if (begins_with_cmd(cmd_str, CMD_SET_TIME))
-	{
-		pc_settime(cmd_str);
-	}
-	else if (begins_with_cmd(cmd_str, CMD_CLEAR))
-	{
-		pc_clear();
-	}
-	else if (begins_with_cmd(cmd_str, CMD_SLEEP))
-	{
-		pc_sleep(cmd_str);
-	}
-	else if (begins_with_cmd(cmd_str, CMD_RAND))
-	{
-		pc_rand();
-	}
-	else if (begins_with_cmd(cmd_str, CMD_SP_MON_ON))
-	{
-		pc_sp_mon_enable(true);
-	}
-	else if (begins_with_cmd(cmd_str, CMD_SP_MON_OFF))
-	{
-		pc_sp_mon_enable(false);
-	}
-	else if (begins_with_cmd(cmd_str, CMD_SP_MON_INFO))
-	{
-		pc_sp_mon_info();
-	}
-	else if (begins_with_cmd(cmd_str, CMD_PONG))
-	{
-		pong_main();
-	}
-	else if (begins_with_cmd(cmd_str, CMD_SNAKE))
-	{
-		snake_main();
-	}
-	else if (begins_with_cmd(cmd_str, CMD_BRICKS))
-	{
-		bricks_main();
-	}
-	else if (begins_with_cmd(cmd_str, CMD_GREP))
-	{
-		grep_main(cmd_str);
-	}
-	else if (begins_with_cmd(cmd_str, CMD_SEQ))
-	{
-		seq_main(cmd_str);
-	}
-	else
-	{
-		char buf[20];
-		sprintf(buf, "?: Try \'%s\'.", CMD_HELP);
-		serial_write(buf, strlen(buf));
-		serial_write_newline();
-	}
-
-	return 0;
+	return command_process_internal(cmd_str, PC_PT_EXEC);
 }
 
 const char* command_tab_complete(const char* cmd, unsigned short cmd_len, unsigned short* match_count)
@@ -218,6 +134,338 @@ const char* command_tab_complete(const char* cmd, unsigned short cmd_len, unsign
 	return ((matches == 1) ? last_match : 0);
 }
 
+
+static char command_process_internal(unsigned char* cmd_str, char process_type)
+{
+	if (strlen(cmd_str) == 0)
+	{
+		return (process_type == PC_PT_EXEC ? 0 : -1);
+	}
+
+	if (process_type == PC_PT_EXEC)
+	{
+		unsigned char* cmd_str_2 = is_pipe_cmd(cmd_str);
+		if (cmd_str_2 != 0)
+		{
+			if (command_process_internal(cmd_str, PC_PT_ALLOW_FIRST) != 0 || process_second_command(cmd_str_2) != 0)
+			{
+				char buf[8];
+				sprintf(buf, "invalid");
+				serial_write(buf, strlen(buf));
+				serial_write_newline();
+
+				return 0;
+			}
+		}
+	}
+
+	if (begins_with_cmd(cmd_str, CMD_RESET))
+	{
+		return (process_type == PC_PT_EXEC ? PC_RC_RESET : -1);
+	}
+	else if (begins_with_cmd(cmd_str, CMD_STOP))
+	{
+		return (process_type == PC_PT_EXEC ? PC_RC_STOP : -1);
+	}
+	else if (begins_with_cmd(cmd_str, CMD_DUMP))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			dump_state();
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_HELP))
+	{
+		switch (process_type)
+		{
+		case PC_PT_EXEC:
+			pc_help();
+			break;
+		case PC_PT_ALLOW_FIRST:
+			return 0;
+		default:
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_LED_ON))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			pc_led(true);
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_LED_OFF))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			pc_led(false);
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_SYS_INFO))
+	{
+		switch (process_type)
+		{
+		case PC_PT_EXEC:
+			pc_sys_info();
+			break;
+		case PC_PT_ALLOW_FIRST:
+			return 0;
+		default:
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_TIME))
+	{
+		switch (process_type)
+		{
+		case PC_PT_EXEC:
+			pc_time();
+			break;
+		case PC_PT_ALLOW_FIRST:
+			return 0;
+		default:
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_SET_TIME))
+	{
+		switch (process_type)
+		{
+		case PC_PT_EXEC:
+			pc_settime(cmd_str);
+			break;
+		case PC_PT_ALLOW_FIRST:
+			return 0;
+		default:
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_CLEAR))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			pc_clear();
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_SLEEP))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			pc_sleep(cmd_str);
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_RAND))
+	{
+		switch (process_type)
+		{
+		case PC_PT_EXEC:
+			pc_rand();
+			break;
+		case PC_PT_ALLOW_FIRST:
+			return 0;
+		default:
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_SP_MON_ON))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			pc_sp_mon_enable(true);
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_SP_MON_OFF))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			pc_sp_mon_enable(false);
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_SP_MON_INFO))
+	{
+		switch (process_type)
+		{
+		case PC_PT_EXEC:
+			pc_sp_mon_info();
+			break;
+		case PC_PT_ALLOW_FIRST:
+			return 0;
+		default:
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_PONG))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			pong_main();
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_SNAKE))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			snake_main();
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_BRICKS))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			bricks_main();
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_GREP))
+	{
+		switch (process_type)
+		{
+		case PC_PT_EXEC:
+			grep_main(cmd_str);
+			break;
+		case PC_PT_ALLOW_FIRST:
+		case PC_PT_ALLOW_SECOND:
+			return 0;
+		default:
+			return -1;
+		}
+	}
+	else if (begins_with_cmd(cmd_str, CMD_SEQ))
+	{
+		switch (process_type)
+		{
+		case PC_PT_EXEC:
+			seq_main(cmd_str);
+			break;
+		case PC_PT_ALLOW_FIRST:
+			return 0;
+		default:
+			return -1;
+		}
+	}
+	else
+	{
+		if (process_type != PC_PT_EXEC)
+		{
+			return -1;
+		}
+
+		char buf[20];
+		sprintf(buf, "?: Try \'%s\'.", CMD_HELP);
+		serial_write(buf, strlen(buf));
+		serial_write_newline();
+	}
+
+	if (thread_is_running())
+	{
+		thread_join();
+	}
+
+	return 0;
+}
+
+static unsigned char* is_pipe_cmd(unsigned char* cmd_str)
+{
+	while (*cmd_str != 0x00)
+	{
+		if (*cmd_str == '|')
+		{
+			return cmd_str + 1;
+		}
+		cmd_str++;
+	}
+
+	return 0;
+}
+
+static char process_second_command(unsigned char* cmd_str)
+{
+	while (*cmd_str == ' ')
+	{
+		cmd_str++;
+	}
+
+	if (*cmd_str == 0x00)
+	{
+		return -1;
+	}
+
+	if (command_process_internal(cmd_str, PC_PT_ALLOW_SECOND) != 0)
+	{
+		return -1;
+	}
+
+	if (thread_is_running())
+	{
+		dump_state();
+	}
+
+	thread_entry_func entry_func = get_entry_for_second(cmd_str);
+	if (entry_func == 0)
+	{
+		dump_state();
+	}
+
+	thread_create(entry_func, cmd_str);
+
+	return 0;
+}
+
+static void* get_entry_for_second(const unsigned char* cmd_str)
+{
+	if (begins_with_cmd(cmd_str, CMD_GREP))
+	{
+		return &grep_main;
+	}
+
+	return 0;
+}
+
+static bool begins_with_cmd(const char* str, const char* cmd)
+{
+	const unsigned short cmd_len = strlen(cmd);
+
+	return (strncmp(str, cmd, cmd_len) == 0 && (str[cmd_len] == 0x00 || str[cmd_len] == ' ' || str[cmd_len] == '|'));
+}
 
 static void pc_help()
 {
@@ -327,6 +575,9 @@ static void pc_sys_info()
 	serial_write(buf, strlen(buf));
 
 	sprintf(buf, "notify timers: %u\r\n", timer_get_notify_registered_count());
+	serial_write(buf, strlen(buf));
+
+	sprintf(buf, "thread switches: %u\r\n", thread_switch_count());
 	serial_write(buf, strlen(buf));
 
 	short temp = thermal_read_temperature();
@@ -476,11 +727,4 @@ static void pc_sp_mon_info()
 		sprintf(buf, "no data\r\n");
 		serial_write(buf, strlen(buf));
 	}
-}
-
-static bool begins_with_cmd(const char* str, const char* cmd)
-{
-	const unsigned short cmd_len = strlen(cmd);
-
-	return (strncmp(str, cmd, cmd_len) == 0 && (str[cmd_len] == 0x00 || str[cmd_len] == ' '));
 }

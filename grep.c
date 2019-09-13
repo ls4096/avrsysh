@@ -8,8 +8,9 @@
 static bool parse_args(const char* str, char* s);
 static bool is_match(const char* line, const char* search);
 
-void grep_main(const char* str)
+void grep_main(void* arg)
 {
+	const char* str = (const char*) arg;
 	unsigned char search[32];
 
 	if (!parse_args(str, search))

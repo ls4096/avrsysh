@@ -5,6 +5,7 @@
 
 #include "pm.h"
 #include "rng.h"
+#include "thread.h"
 #include "timer.h"
 
 #ifndef F_CPU
@@ -54,6 +55,11 @@ bool serial_has_next_byte()
 
 unsigned char serial_read_next_byte()
 {
+	if (thread_is_running() && thread_which_is_running() == 1)
+	{
+		return thread_read_pipe();
+	}
+
 	while (!serial_has_next_byte())
 	{
 		pm_yield();
@@ -81,6 +87,13 @@ void serial_write_newline()
 
 void serial_tx_byte(unsigned char data)
 {
-	while (!(UCSR0A & (1 << UDRE0))) { }
-	UDR0 = data;
+	if (thread_is_running() && thread_which_is_running() == 0)
+	{
+		thread_write_pipe(data);
+	}
+	else
+	{
+		while (!(UCSR0A & (1 << UDRE0))) { }
+		UDR0 = data;
+	}
 }

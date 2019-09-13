@@ -17,6 +17,7 @@ OBJS = \
 	sp_mon.o \
 	term.o \
 	thermal.o \
+	thread.o \
 	time.o \
 	timer.o \
 	util.o

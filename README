@@ -1,29 +1,34 @@
 The "avrsysh" project explores some of the capabilities of the ATmega328P MCU (used on boards such as the Arduino Duemilanove and Arduino Uno).
 
-This project must run within the memory constraints of the ATmega328P (32 KB for instructions, and 2 KB SRAM for data), so it is an interesting challenge to see how much can be accomplished within these constraints. At the moment, the project seems to be well within these limits, and there is much room for additional features.
+This project must run within the memory constraints of the ATmega328P (32 KB for instructions, and 2 KB SRAM for data), so it is an interesting challenge to see how much can be accomplished within these constraints. At the moment, the project seems to be reasonably within these limits, and there is some room for additional features still.
 
-NOTE: The build as it is configured assumes a 16 MHz core clock, as it is configured on the Arduino boards. If running with a different clock, the F_CPU value should be modified accordingly. Other things may also misbehave at different clocks (such as the ADC, where the prescale factor used may need to be changed, and possibly the serial communication if the timings don't quite match up), but it should be possible to resolve with some minor code modifications or playing with some defined constants.
+NOTE: The build as it is configured assumes a 16 MHz core clock, which is the configuration on the Arduino boards. If running with a different clock, the F_CPU value should be modified accordingly. Other things may also misbehave at different clocks (such as the ADC, where the prescale factor used may need to be changed, and possibly the serial communication if the timings don't quite match up), but it should be possible to resolve with some minor code modifications or playing with some defined constants.
 
 
 Some ATmega328P functionality used:
 	- Timer
 	- Serial communication using the USART
-	- ADC to estimate chip's internal temperature
+	- ADC to estimate the chip's internal temperature
 	- Some very basic power management using the "sleep" instruction
 
 Features of "avrsysh" include:
 	- A lightweight "shell" from which to launch built-in commands
 		- with limited use of VT100 codes to support "backspace", "up" for previous command, and for clearing the screen
 		- tab completion support
-	- Some system utilities, including a "CPU usage" counter and a stack pointer monitor which samples stack memory usage over time
+	- Some system utilities, including a "CPU usage" counter and a stack pointer monitor which samples the stack pointer and can help with estimating memory "usage" over time
+	- Some basic shell utilities commonly found on Unix-like systems, like "grep" and "seq"
+	- Basic capability to execute two concurrent threads, created when a pipe is used in the shell, with the output of the first command being fed in as the input to the second
+		- For example: "sysinfo | grep uptime"
+		- Note that not all commands are supported on either side of the pipe
 	- Random number generator
 		- LCG algorithm with some added entropy based on USART RX timings
-	- Pong
-		- 'w'/'s' for player 1 controls; 'o'/'l' for player 2 controls; space to resume; 'Q' to quit
-	- Snake
-		- "wasd" to control; 'Q' to quit
-	- Bricks
-		- 'a'/'d' to control; space to resume; 'Q' to quit
+	- Some games
+		- Pong
+			- 'w'/'s' for player 1 controls; 'o'/'l' for player 2 controls; space to resume; 'Q' to quit
+		- Snake
+			- "wasd" to control; 'Q' to quit
+		- Bricks
+			- 'a'/'d' to control; space to resume; 'Q' to quit
 
 
 ====================
