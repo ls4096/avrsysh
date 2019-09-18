@@ -3,16 +3,14 @@
 
 #include "thread.h"
 
+#include "avr_mcu.h"
 #include "dump.h"
 #include "pm.h"
 #include "reg_mem.h"
 
-#define STACK_OFFSET (0x180)
-#define PIPE_BUF_SIZE (64)
-
 static char _running = -1;
 static uint8_t* _saved_sp;
-static unsigned char _pipe_buf[PIPE_BUF_SIZE];
+static unsigned char _pipe_buf[THREAD_PIPE_BUF_SIZE];
 static unsigned char _pipe_buf_next_write;
 static unsigned char _pipe_buf_next_read;
 static bool _pipe_in_end;
@@ -35,11 +33,20 @@ char thread_which_is_running()
 
 void thread_create(thread_entry_func func, void* arg)
 {
-	_saved_sp = (uint8_t*) (REG_SP - STACK_OFFSET);
+	_saved_sp = (uint8_t*)(REG_SP - THREAD_STACK_OFFSET);
+
 	*(_saved_sp--) = (uint16_t)(&return_from_thread);
 	*(_saved_sp--) = (((uint16_t)(&return_from_thread)) >> 8);
+#if (PC_SIZE_BYTES == 3)
+	*(_saved_sp--) = 0;
+#endif
+
 	*(_saved_sp--) = (uint16_t)func;
 	*(_saved_sp--) = (((uint16_t)func) >> 8);
+#if (PC_SIZE_BYTES == 3)
+	*(_saved_sp--) = 0;
+#endif
+
 	for (short i = 31; i >= 0; i--)
 	{
 		switch (i)
@@ -197,14 +204,14 @@ unsigned char thread_read_pipe()
 	}
 
 	unsigned char c = _pipe_buf[_pipe_buf_next_read];
-	_pipe_buf_next_read = ((_pipe_buf_next_read + 1) % PIPE_BUF_SIZE);
+	_pipe_buf_next_read = ((_pipe_buf_next_read + 1) % THREAD_PIPE_BUF_SIZE);
 
 	return c;
 }
 
 bool thread_is_pipe_full()
 {
-	return (((_pipe_buf_next_write + 1) % PIPE_BUF_SIZE) == _pipe_buf_next_read);
+	return (((_pipe_buf_next_write + 1) % THREAD_PIPE_BUF_SIZE) == _pipe_buf_next_read);
 }
 
 void thread_write_pipe(unsigned char c)
@@ -220,7 +227,7 @@ void thread_write_pipe(unsigned char c)
 	}
 
 	_pipe_buf[_pipe_buf_next_write] = c;
-	_pipe_buf_next_write = ((_pipe_buf_next_write + 1) % PIPE_BUF_SIZE);
+	_pipe_buf_next_write = ((_pipe_buf_next_write + 1) % THREAD_PIPE_BUF_SIZE);
 }
 
 

@@ -2,15 +2,18 @@
 
 #include "thermal.h"
 
+#include "avr_mcu.h"
+
+static void thermal_init_hw();
+
 void thermal_init()
 {
-	PRR &= ~(1 << PRADC);
-	ADMUX = (1 << REFS1) | (1 << REFS0) | (1 << MUX3);
-	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+	thermal_init_hw();
 }
 
 short thermal_read_temperature()
 {
+#ifdef THERMAL_SUPPORT
 	ADCSRA |= (1 << ADSC);
 
 	while ((ADCSRA & (1 << ADSC)) != 0) { }
@@ -29,4 +32,26 @@ short thermal_read_temperature()
 	t /= 55;
 
 	return t;
+#else
+	return THERMAL_TEMP_NONE;
+#endif
+}
+
+static void thermal_init_hw()
+{
+#ifdef THERMAL_SUPPORT
+
+#if (defined AVRSYSH_MCU_328P)
+	PRR &= ~(1 << PRADC);
+	ADMUX = (1 << REFS1) | (1 << REFS0) | (1 << MUX3);
+	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+#elif (defined AVRSYSH_MCU_32U4)
+	PRR0 &= ~(1 << PRADC);
+	ADMUX = (1 << REFS1) | (1 << REFS0) | (1 << MUX5) | (1 << MUX2) | (1 << MUX1) | (1 << MUX0);
+	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+#else
+	#error "MCU type not defined or not supported!"
+#endif
+
+#endif // THERMAL_SUPPORT
 }

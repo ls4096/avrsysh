@@ -1,6 +1,3 @@
-#include "dump.h"
-#include "serial.h"
-
 .global dump_state
 dump_state:
 	cli
@@ -83,7 +80,12 @@ dump_state:
 
 
 	/* PC from stack */
-	/* NOTE: This assumes 16-bit PC */
+	call	avr_mcu_pc_size_bytes
+	mov	r19, r24
+	cpi	r19, 3
+	brlt	.pc0
+	pop	r25
+.pc0:
 	pop	r23
 	pop	r22
 
@@ -100,6 +102,11 @@ dump_state:
 	call	serial_tx_byte
 	ldi	r24, '\t'
 	call	serial_tx_byte
+	cpi	r19, 3
+	brlt	.pc1
+	mov	r24, r25
+	call	_print_byte_hex
+.pc1:
 	mov	r24, r23
 	call	_print_byte_hex
 	mov	r24, r22
@@ -170,7 +177,7 @@ _print_byte_hex:
 	ldi	r20, 0x27
 
 	push	r24
-	lsr	r24
+	lsr	r24 /* Do instead: SWAP then AND */
 	lsr	r24
 	lsr	r24
 	lsr	r24

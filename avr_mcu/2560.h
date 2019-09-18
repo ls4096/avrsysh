@@ -1,0 +1,13 @@
+#ifndef _AVR_MCU_2560_H_
+#define _AVR_MCU_2560_H_
+
+#define AVRSYSH_MCU_2560	1
+
+#define THREAD_STACK_OFFSET	0x400
+#define THREAD_PIPE_BUF_SIZE	256
+
+#define SERIAL_RX_BUF_SIZE	32
+
+#define PC_SIZE_BYTES		3
+
+#endif // _AVR_MCU_2560_H_

@@ -4,6 +4,7 @@
 
 #include "timer.h"
 
+#include "avr_mcu.h"
 #include "pm.h"
 #include "sp_mon.h"
 
@@ -15,6 +16,9 @@ static volatile unsigned char _sleep_counter[2] = { 0, 0 };
 
 #define NOTIFY_COUNT_LIMIT 4
 static volatile timer_notify_t* _notify_items[NOTIFY_COUNT_LIMIT];
+
+
+static void timer_init_hw();
 
 
 ISR(TIMER1_OVF_vect)
@@ -54,10 +58,7 @@ ISR(TIMER1_OVF_vect)
 
 void timer_init()
 {
-	PRR &= ~(1 << PRTIM1);
-	TCCR1B |= (1 << CS10);
-	TIFR1 |= (1 << TOV1);
-	TIMSK1 |= (1 << TOIE1);
+	timer_init_hw();
 
 	short i;
 	for (i = 0; i < NOTIFY_COUNT_LIMIT; i++)
@@ -171,4 +172,26 @@ unsigned short timer_get_notify_registered_count()
 	}
 
 	return n;
+}
+
+static void timer_init_hw()
+{
+#if (defined AVRSYSH_MCU_328P)
+	PRR &= ~(1 << PRTIM1);
+	TCCR1B |= (1 << CS10);
+	TIFR1 |= (1 << TOV1);
+	TIMSK1 |= (1 << TOIE1);
+#elif (defined AVRSYSH_MCU_2560)
+	PRR0 &= ~(1 << PRTIM1);
+	TCCR1B |= (1 << CS10);
+	TIFR1 |= (1 << TOV1);
+	TIMSK1 |= (1 << TOIE1);
+#elif (defined AVRSYSH_MCU_32U4)
+	PRR0 &= ~(1 << PRTIM1);
+	TCCR1B |= (1 << CS10);
+	TIFR1 |= (1 << TOV1);
+	TIMSK1 |= (1 << TOIE1);
+#else
+	#error "MCU type not defined or not supported!"
+#endif
 }

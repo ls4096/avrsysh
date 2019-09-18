@@ -1,6 +1,7 @@
 all: avrsysh.hex
 
 OBJS = \
+	avr_mcu.o \
 	bricks.o \
 	command.o \
 	draw.o \
@@ -24,13 +25,13 @@ OBJS = \
 	wc.o
 
 %.o: %.c
-	$(AVR_TOOLS_DIR)/bin/avr-gcc -c -Os -mmcu=atmega328p -DF_CPU=16000000L -o $@ $<
+	$(AVR_TOOLS_DIR)/bin/avr-gcc -c -Os -mmcu=$(AVR_MCU) -DF_CPU=16000000L -o $@ $<
 
 %.o: %.S
-	$(AVR_TOOLS_DIR)/bin/avr-as -c -mmcu=atmega328p -o $@ $<
+	$(AVR_TOOLS_DIR)/bin/avr-as -c -mmcu=$(AVR_MCU) -o $@ $<
 
 avrsysh.elf: $(OBJS)
-	$(AVR_TOOLS_DIR)/bin/avr-gcc -Os -mmcu=atmega328p -o avrsysh.elf *.o -lm
+	$(AVR_TOOLS_DIR)/bin/avr-gcc -Os -mmcu=$(AVR_MCU) -o avrsysh.elf *.o -lm
 	$(AVR_TOOLS_DIR)/bin/avr-size avrsysh.elf
 
 avrsysh.hex: avrsysh.elf
@@ -42,7 +43,13 @@ clean:
 	rm -rf *.o *.hex *.elf *.asm *.eep
 
 flash: avrsysh.hex
-	$(AVR_TOOLS_DIR)/bin/avrdude -C $(AVR_TOOLS_DIR)/etc/avrdude.conf -p atmega328p -c stk500v1 -P $(AVR_FLASH_PORT) -b57600 -D -Uflash:w:avrsysh.hex:i
+	$(AVR_TOOLS_DIR)/bin/avrdude -C $(AVR_TOOLS_DIR)/etc/avrdude.conf -p $(AVR_MCU) -c stk500v1 -P $(AVR_FLASH_PORT) -b57600 -D -Uflash:w:avrsysh.hex:i
 
 flash_uno: avrsysh.hex
-	$(AVR_TOOLS_DIR)/bin/avrdude -C $(AVR_TOOLS_DIR)/etc/avrdude.conf -p atmega328p -c arduino -P $(AVR_FLASH_PORT) -b115200 -D -Uflash:w:avrsysh.hex:i
+	$(AVR_TOOLS_DIR)/bin/avrdude -C $(AVR_TOOLS_DIR)/etc/avrdude.conf -p $(AVR_MCU) -c arduino -P $(AVR_FLASH_PORT) -b115200 -D -Uflash:w:avrsysh.hex:i
+
+flash_2560: avrsysh.hex
+	$(AVR_TOOLS_DIR)/bin/avrdude -C $(AVR_TOOLS_DIR)/etc/avrdude.conf -p $(AVR_MCU) -c wiring -P $(AVR_FLASH_PORT) -b115200 -D -Uflash:w:avrsysh.hex:i
+
+flash_32u4: avrsysh.hex
+	$(AVR_TOOLS_DIR)/bin/avrdude -C $(AVR_TOOLS_DIR)/etc/avrdude.conf -p $(AVR_MCU) -c avr109 -P $(AVR_FLASH_PORT) -b57600 -D -Uflash:w:avrsysh.hex:i

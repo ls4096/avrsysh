@@ -603,8 +603,18 @@ static void pc_sys_info()
 	serial_write(buf, strlen(buf));
 
 	short temp = thermal_read_temperature();
-	sprintf(buf, "internal temp: %d C\r\n", temp);
+	sprintf(buf, "internal temp: ", temp);
 	serial_write(buf, strlen(buf));
+	if (temp != THERMAL_TEMP_NONE)
+	{
+		sprintf(buf, "%d C", temp);
+	}
+	else
+	{
+		sprintf(buf, "N/A");
+	}
+	serial_write(buf, strlen(buf));
+	serial_write_newline();
 }
 
 static void pc_time()
