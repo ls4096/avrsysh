@@ -5,7 +5,7 @@ This system must be able to run within the memory constraints of each of the var
 NOTE: The build as it is configured assumes a 16 MHz core clock, which is the default configuration on the Arduino boards. If running with a different clock, the F_CPU value should be modified accordingly. Other things may also misbehave at different clocks (such as the ADC, where the prescale factor used may need to be changed, and possibly the serial communication if the timings don't quite match up), but it should be possible to resolve with some minor code modifications or playing with some defined constants.
 
 
-Some ATmega328P functionality used:
+Some AVR MCU functionality used:
 	- Timer
 	- Serial communication using the USART
 	- ADC to estimate the chip's internal temperature (not present on ATmega2560)
