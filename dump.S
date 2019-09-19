@@ -166,23 +166,16 @@ _print_nl:
 
 
 _print_byte_hex:
-	push	r23
-	push	r22
 	push	r21
 	push	r20
 
-	ldi	r23, 0x0f
-	ldi	r22, 0x0a
 	ldi	r21, 0x30
 	ldi	r20, 0x27
 
 	push	r24
-	lsr	r24 /* Do instead: SWAP then AND */
-	lsr	r24
-	lsr	r24
-	lsr	r24
-	and	r24, r23
-	cp	r24, r22
+	swap	r24
+	andi	r24, 0x0f
+	cpi	r24, 0x0a
 	brlt	.pbh0
 	add	r24, r20
 .pbh0:
@@ -191,8 +184,8 @@ _print_byte_hex:
 	pop	r24
 
 	push	r24
-	and	r24, r23
-	cp	r24, r22
+	andi	r24, 0x0f
+	cpi	r24, 0x0a
 	brlt	.pbh1
 	add	r24, r20
 .pbh1:
@@ -202,7 +195,5 @@ _print_byte_hex:
 
 	pop	r20
 	pop	r21
-	pop	r22
-	pop	r23
 
 	ret
