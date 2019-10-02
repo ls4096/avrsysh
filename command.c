@@ -13,6 +13,7 @@
 #include "rng.h"
 #include "seq.h"
 #include "serial.h"
+#include "serial_proxy.h"
 #include "snake.h"
 #include "sp_mon.h"
 #include "term.h"
@@ -22,6 +23,8 @@
 #include "timer.h"
 #include "util.h"
 #include "wc.h"
+
+#include "avr_mcu.h"
 
 #define HELP_LINE_MAX_LENGTH 48
 
@@ -50,6 +53,9 @@ static const char* CMD_BRICKS = "bricks";
 static const char* CMD_GREP = "grep";
 static const char* CMD_SEQ = "seq";
 static const char* CMD_WC = "wc";
+#ifdef SERIAL_EXTRA_SUPPORT
+static const char* CMD_SERIAL_PROXY = "sp";
+#endif
 
 static char command_process_internal(unsigned char* cmd_str, char process_type);
 static unsigned char* is_pipe_cmd(unsigned char* cmd_str);
@@ -96,6 +102,9 @@ const char* command_tab_complete(const char* cmd, unsigned short cmd_len, unsign
 		CMD_SET_TIME,
 		CMD_SLEEP,
 		CMD_SNAKE,
+#ifdef SERIAL_EXTRA_SUPPORT
+		CMD_SERIAL_PROXY,
+#endif
 		CMD_SP_MON_INFO,
 		CMD_SP_MON_OFF,
 		CMD_SP_MON_ON,
@@ -399,6 +408,19 @@ static char command_process_internal(unsigned char* cmd_str, char process_type)
 			return -1;
 		}
 	}
+#ifdef SERIAL_EXTRA_SUPPORT
+	else if (begins_with_cmd(cmd_str, CMD_SERIAL_PROXY))
+	{
+		if (process_type == PC_PT_EXEC)
+		{
+			serialproxy();
+		}
+		else
+		{
+			return -1;
+		}
+	}
+#endif
 	else
 	{
 		if (process_type != PC_PT_EXEC)
@@ -524,6 +546,9 @@ static void pc_help()
 	help_print_f2a(CMD_GREP, "S");
 	help_print_f2a(CMD_SEQ, "X Y");
 	help_print_f1(CMD_WC);
+#ifdef SERIAL_EXTRA_SUPPORT
+	help_print_f2(CMD_SERIAL_PROXY, "start serial proxy");
+#endif
 }
 
 static void help_print_f0(const char* s)

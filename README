@@ -1,4 +1,4 @@
-The "avrsysh" project is a system and interactive shell which explores some of the capabilities of AVR MCUs. Currently supported are the ATmega328P (used on boards such as the Arduino Duemilanove and Arduino Uno), the ATmega2560, and the ATmega32U4 (although support for "serial" over USB is currently missing).
+The "avrsysh" project is a system and interactive shell which explores some of the capabilities of AVR MCUs. Currently supported are the ATmega328P (used on boards such as the Arduino Duemilanove and Arduino Uno), the ATmega2560, and the ATmega32U4.
 
 This system must be able to run within the memory constraints of each of the various supported MCUs (32-256 KB for instructions, and 2-8 KB SRAM for data), so it is an interesting challenge to see how much can be accomplished in each case. The system works within these limits, and there is room for additional features still, especially with more memory available on the ATmega2560.
 
@@ -7,7 +7,7 @@ NOTE: The build as it is configured assumes a 16 MHz core clock, which is the de
 
 Some AVR MCU functionality used:
 	- Timer
-	- Serial communication using the USART
+	- Serial communication using the USART (additional USART on ATmega2560 can be used for serial proxying to communicate with another board).
 	- ADC to estimate the chip's internal temperature (not present on ATmega2560)
 	- Some very basic power management using the "sleep" instruction
 
@@ -17,6 +17,8 @@ Features of "avrsysh" include:
 		- tab completion support
 	- Some system utilities, including a "CPU usage" counter and a stack pointer monitor which samples the stack pointer and can help with estimating memory "usage" over time
 	- Some basic shell utilities commonly found on Unix-like systems, like "grep" and "seq"
+	- Serial proxy ("sp" command), available on the ATmega2560
+		- Useful for forwarding USART communication to/from other boards
 	- Basic capability to execute two concurrent threads, created when a pipe is used in the shell, with the output of the first command being fed in as the input to the second
 		- For example: "sysinfo | grep uptime"
 		- Note that not all commands are supported on either side of the pipe

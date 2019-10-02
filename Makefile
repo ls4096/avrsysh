@@ -14,6 +14,7 @@ OBJS = \
 	rng.o \
 	seq.o \
 	serial.o \
+	serial_proxy.o \
 	snake.o \
 	sp_mon.o \
 	term.o \
