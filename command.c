@@ -606,6 +606,9 @@ static void pc_sys_info()
 	// TODO: Fix? This will overflow after 65535 seconds.
 	short s = ticks[0] * TIMER_SECONDS_PER_UPPER_TICK + (ticks[1] / TIMER_TICKS_PER_SECOND);
 
+	sprintf(buf, "MCU: %s\r\n", AVR_MCU_TYPE);
+	serial_write(buf, strlen(buf));
+
 	sprintf(buf, "uptime: %u s\r\n", s);
 	serial_write(buf, strlen(buf));
 

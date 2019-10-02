@@ -2,6 +2,7 @@
 #define _AVR_MCU_328P_H_
 
 #define AVRSYSH_MCU_328P	1
+#define AVR_MCU_TYPE		"328p"
 
 #define THREAD_STACK_OFFSET	0x180
 #define THREAD_PIPE_BUF_SIZE	64

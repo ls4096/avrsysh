@@ -2,6 +2,7 @@
 #define _AVR_MCU_2560_H_
 
 #define AVRSYSH_MCU_2560		1
+#define AVR_MCU_TYPE			"2560"
 
 #define THREAD_STACK_OFFSET		0x400
 #define THREAD_PIPE_BUF_SIZE		256
