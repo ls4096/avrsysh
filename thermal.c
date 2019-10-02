@@ -45,10 +45,6 @@ static void thermal_init_hw()
 	PRR &= ~(1 << PRADC);
 	ADMUX = (1 << REFS1) | (1 << REFS0) | (1 << MUX3);
 	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
-#elif (defined AVRSYSH_MCU_32U4)
-	PRR0 &= ~(1 << PRADC);
-	ADMUX = (1 << REFS1) | (1 << REFS0) | (1 << MUX5) | (1 << MUX2) | (1 << MUX1) | (1 << MUX0);
-	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 #else
 	#error "MCU type not defined or not supported!"
 #endif

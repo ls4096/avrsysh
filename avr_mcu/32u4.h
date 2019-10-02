@@ -10,6 +10,4 @@
 
 #define PC_SIZE_BYTES		2
 
-#define THERMAL_SUPPORT		1
-
 #endif // _AVR_MCU_32U4_H_

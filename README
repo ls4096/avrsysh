@@ -8,7 +8,7 @@ NOTE: The build as it is configured assumes a 16 MHz core clock, which is the de
 Some AVR MCU functionality used:
 	- Timer
 	- Serial communication using the USART (additional USART on ATmega2560 can be used for serial proxying to communicate with another board).
-	- ADC to estimate the chip's internal temperature (not present on ATmega2560)
+	- ADC to estimate the chip's internal temperature (ATmega328P only)
 	- Some very basic power management using the "sleep" instruction
 
 Features of "avrsysh" include:
